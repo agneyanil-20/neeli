@@ -169,6 +169,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .archive-header div p{
   font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;
 }
+#about-trigger{
+  margin-top:8px;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--txt);
+  opacity:0.5;cursor:pointer;display:inline-block;border-bottom:1px solid rgba(255,255,255,0.2);
+  padding-bottom:2px;transition:opacity 0.2s ease;
+}
+#about-trigger:hover{opacity:1;}
 .archive-close{
   width:40px;height:40px;
   background:rgba(255,255,255,0.07);
@@ -222,6 +228,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .detail-section h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:15px;font-weight:800;}
 .detail-section p{font-size:1rem;line-height:1.8;color:rgba(255,255,255,0.75);margin-bottom:30px;}
 .stat-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);padding:18px;border-radius:12px;}
+
+/* ABOUT SECTION */
+#about-sheet{
+  z-index:7000;background:#050505;
+  transform:translateX(100%);transition:transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;
+}
+#about-sheet.open{transform:translateX(0);}
+.about-content{
+  flex:1;overflow-y:auto;padding:60px 30px 120px;max-width:600px;margin:0 auto;
+}
+.about-content h1{font-size:2.2rem;font-weight:900;letter-spacing:-1px;margin-bottom:24px;color:#fff;}
+.about-content h2{font-size:1.5rem;font-weight:800;margin:40px 0 20px;color:#fff;}
+.about-content p{font-size:1.05rem;line-height:1.8;color:rgba(255,255,255,0.6);margin-bottom:24px;}
+.about-content ul{margin-bottom:30px;padding-left:20px;}
+.about-content li{font-size:1.05rem;line-height:1.8;color:rgba(255,255,255,0.6);margin-bottom:12px;}
+.about-content hr{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:50px 0;}
+.about-close-btn{
+  position:fixed;top:30px;right:24px;width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;backdrop-filter:blur(10px);
+}
 
 #archive-btn{
   width:44px;height:44px;
@@ -396,12 +424,117 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <div>
       <h2>Archive</h2>
       <p>Paranormal Records & Folklore Entities</p>
+      <span id="about-trigger">About NEELI</span>
     </div>
     <div class="archive-close" id="archive-close-btn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </div>
   </div>
   <div id="archive-list"></div>
+</div>
+
+<!-- ABOUT DRAWER -->
+<div id="about-sheet">
+  <div class="about-close-btn" id="about-close-btn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  </div>
+  <div class="about-content">
+    <h1>About NEELI</h1>
+    <p>NEELI is a location-based paranormal folklore exploration platform inspired by regional ghost legends, environmental mapping and cultural storytelling across South India.</p>
+    <p>The platform combines:</p>
+    <ul>
+      <li>folklore archives</li>
+      <li>geospatial mapping</li>
+      <li>environmental patterns</li>
+      <li>historical locations</li>
+      <li>user-region analysis</li>
+    </ul>
+    <p>to simulate paranormal “activity zones” in an immersive and atmospheric way.</p>
+    
+    <hr>
+    
+    <h2>How NEELI Works</h2>
+    <p>NEELI does not claim to scientifically prove the existence of ghosts or supernatural entities.</p>
+    <p>Instead, the platform uses a combination of:</p>
+    <ul>
+      <li>geographic isolation data</li>
+      <li>historical folklore regions</li>
+      <li>cemetery proximity</li>
+      <li>environmental darkness levels</li>
+      <li>low-density rural mapping</li>
+      <li>local cultural legends</li>
+      <li>nighttime activity windows</li>
+    </ul>
+    <p>to generate paranormal probability zones across the map.</p>
+    <p>These zones are inspired by real folklore stories, reported myths and region-specific supernatural beliefs.</p>
+    
+    <hr>
+    
+    <h2>Paranormal Activity Mapping</h2>
+    <p>The system analyzes nearby environmental conditions such as:</p>
+    <ul>
+      <li>graveyard locations</li>
+      <li>forest regions</li>
+      <li>abandoned routes</li>
+      <li>isolated roads</li>
+      <li>riversides</li>
+      <li>low-light regions</li>
+      <li>historical folklore hotspots</li>
+    </ul>
+    <p>Using this data, NEELI creates atmospheric “signal regions” where paranormal folklore entities are more likely to appear within the experience.</p>
+    <p>Higher anomaly regions may contain:</p>
+    <ul>
+      <li>stronger folklore entities</li>
+      <li>rare paranormal sightings</li>
+      <li>region-specific spirits</li>
+      <li>historical supernatural records</li>
+    </ul>
+    
+    <hr>
+    
+    <h2>Regional Folklore Intelligence</h2>
+    <p>NEELI dynamically changes entities depending on geographic region.</p>
+    <p><strong>Examples:</strong></p>
+    <p><strong>Kerala:</strong></p>
+    <ul>
+      <li>Yakshi</li>
+      <li>Odiyan</li>
+      <li>Gulikan</li>
+      <li>Neeli</li>
+    </ul>
+    <p><strong>Tamil Nadu:</strong></p>
+    <ul>
+      <li>Mohini Pey</li>
+      <li>Sudalai Madan</li>
+      <li>Kollivai Pisasu</li>
+    </ul>
+    <p><strong>Karnataka:</strong></p>
+    <ul>
+      <li>Bhoota</li>
+      <li>Panjurli</li>
+      <li>Kallurti</li>
+    </ul>
+    <p>The archive system is designed to preserve and present regional folklore traditions in an interactive exploration format.</p>
+    
+    <hr>
+    
+    <h2>Scientific & Cultural Approach</h2>
+    <p>NEELI is designed as:</p>
+    <ul>
+      <li>a folklore exploration platform</li>
+      <li>a cultural storytelling experience</li>
+      <li>an atmospheric paranormal simulation</li>
+    </ul>
+    <p>The app blends:</p>
+    <ul>
+      <li>environmental mapping</li>
+      <li>geolocation systems</li>
+      <li>folklore documentation</li>
+      <li>cinematic interaction design</li>
+    </ul>
+    <p>to create an immersive supernatural investigation experience.</p>
+    <p>NEELI does not present paranormal entities as verified scientific fact. The platform is intended for entertainment, folklore preservation and atmospheric exploration.</p>
+  </div>
 </div>
 
 <!-- DETAIL VIEW -->
@@ -806,6 +939,13 @@ function openDetail(g){
 function closeDetail(){
   document.getElementById('detail-sheet').classList.remove('open');
 }
+
+function toggleAbout(){
+  document.getElementById('about-sheet').classList.toggle('open');
+}
+
+document.getElementById('about-trigger').addEventListener('click', toggleAbout);
+document.getElementById('about-close-btn').addEventListener('click', toggleAbout);
 
 // Attach listener to detail close button (it has a class archive-close)
 document.querySelector('#detail-sheet .archive-close').addEventListener('click', closeDetail);
