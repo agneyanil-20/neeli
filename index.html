@@ -123,6 +123,44 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .dot-c{width:10px;height:10px;background:rgba(255,255,255,.85);border-radius:50%;box-shadow:0 0 12px rgba(255,255,255,.4);z-index:2}
 .dot-p{position:absolute;width:10px;height:10px;background:rgba(255,255,255,.5);border-radius:50%;animation:pulseA 3s cubic-bezier(.2,.8,.2,1) infinite;z-index:1}
 @keyframes pulseA{0%{transform:scale(1);opacity:.8}100%{transform:scale(4);opacity:0}}
+
+/* ARCHIVE UI */
+#archive-sheet{display:flex;flex-direction:column;z-index:3000;background:rgba(8,8,8,0.92);backdrop-filter:blur(30px) saturate(180%);border-left:1px solid rgba(255,255,255,0.08);transform:translateX(100%);transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);position:fixed;top:0;height:100%;}
+#archive-sheet.open{transform:translateX(0);}
+.archive-header{padding:30px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.02);}
+.archive-header h2{font-weight:700;letter-spacing:-1px;font-size:1.4rem;color:#fff;margin:0;}
+.archive-close{width:40px;height:40px;background:rgba(255,255,255,0.05);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+#archive-list{flex:1;overflow-y:auto;padding:20px;display:grid;grid-template-columns:1fr;gap:15px;}
+.archive-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:0.3s;cursor:pointer;position:relative;overflow:hidden;}
+.archive-card:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.12);transform:translateY(-2px);}
+.archive-card.locked{opacity:0.25;filter:grayscale(1);pointer-events:none;}
+.archive-card .r-tag{font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;border-radius:10px;width:fit-content;font-weight:700;}
+.archive-card h3{font-size:1.1rem;font-weight:600;margin:0;color:#fff;}
+.archive-card .meta{font-size:0.75rem;color:rgba(255,255,255,0.4);display:flex;gap:15px;}
+.archive-card .glow{position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle, var(--gc) 0%, transparent 70%);opacity:0.1;pointer-events:none;}
+
+#detail-sheet{z-index:4000;background:#080808;padding:0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);position:fixed;top:0;left:0;right:0;height:100%;}
+#detail-sheet.open{transform:translateY(0);}
+.detail-hero{height:40vh;position:relative;display:flex;align-items:flex-end;padding:30px 20px;overflow:hidden;}
+.detail-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:70%;background:linear-gradient(transparent, #080808);}
+.detail-hero .glow-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:150%;height:150%;background:radial-gradient(circle, var(--gc) 0%, transparent 60%);opacity:0.15;filter:blur(40px);}
+.detail-content{flex:1;overflow-y:auto;padding:30px 20px;background:#080808;}
+.detail-section{margin-bottom:40px;}
+.detail-section h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:15px;font-weight:700;}
+.detail-section p{font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.7);font-weight:400;margin:0;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:30px;}
+.stat-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:15px;border-radius:15px;}
+.stat-item .label{font-size:0.6rem;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:1px;}
+.stat-item .val{font-size:0.85rem;font-weight:600;color:#fff;}
+
+#archive-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;margin-right:10px;}
+
+@media (max-width:600px){
+  #archive-sheet{width:100%;}
+}
+@media (min-width:601px){
+  #archive-sheet{width:400px;right:0;}
+}
 </style>
 </head>
 <body>
@@ -140,7 +178,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 </div>
 
 <div id="top-bar" class="glass">
-  <div id="top-title">NEELI</div>
+  <div style="display:flex; align-items:center;">
+    <div id="archive-btn" onclick="toggleArchive()" title="Folklore Archive">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+    </div>
+    <div id="top-title">NEELI</div>
+  </div>
   <div id="search-wrap">
     <span id="search-icon">🔍</span>
     <input id="search-input" type="text" placeholder="Search city, village…" autocomplete="off"/>
@@ -185,6 +228,27 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <div class="sh-sec"><div class="sec-lbl">Last Reported Sighting</div><div id="sh-sighting" class="sec-txt"></div></div>
 </div>
 
+<!-- ARCHIVE DRAWER -->
+<div id="archive-sheet">
+  <div class="archive-header">
+    <h2>Folklore Archive</h2>
+    <div class="archive-close" onclick="toggleArchive()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+  </div>
+  <div id="archive-list"></div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div id="detail-sheet">
+  <div class="archive-header" style="background:transparent; border:none; position:absolute; top:0; left:0; right:0; z-index:10;">
+    <div class="archive-close" onclick="closeDetail()" style="background:rgba(0,0,0,0.5); backdrop-filter:blur(10px);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+  </div>
+  <div id="detail-body"></div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 (function(){
@@ -204,6 +268,7 @@ var spawnedGhosts=[];
 var graveyardLayers=[];
 var activeGhost=null;
 var mapInitDone=false;
+var discoveredGhosts=JSON.parse(localStorage.getItem('neeli_archive')||'[]');
 
 // ── TIME LOGIC ─────────────────────────────────────────────
 var hr=new Date().getHours();
@@ -211,32 +276,27 @@ var isNight=hr>=18||hr<6;
 var banner=document.getElementById('status-banner');
 if(hr>=6&&hr<18){banner.textContent='Daylight — Paranormal signals faint';banner.className='glass s-day';}
 else if(hr>=18&&hr<24){banner.textContent='Twilight — Active monitoring frequencies';banner.className='glass s-eve';}
-else if(hr>=0&&hr<3){banner.textContent='Midnight — High paranormal distortion detected';banner.className='glass s-mid';}
-else{banner.textContent='Witching Hour — Severe anomalies registered';banner.className='glass s-late';}
-
-// ── FOLKLORE DATABASE ──────────────────────────────────────
-var LORE={
 kerala:[
-{name:'Yakshi',type:'Yakshi',rarity:'legendary',intensity:'Extreme',haunt:'Isolated forest roads',sighting:'Reported 3 weeks ago on NH-66 near Thrissur — a woman in white seen at 2AM beside a Pala tree.',backstory:'The Yakshi is among Kerala\'s most documented supernatural entities. She appears as an extraordinarily beautiful woman, often near Pala trees whose hypnotic scent she uses to disorient victims. Her manifestations are almost exclusively nocturnal, and encounters have been recorded in folklore across centuries of Malayali oral tradition.',origin:'In the canonical accounts, the Yakshi was a woman of high birth who suffered betrayal and violent death. The intensity of her grief and desire for retribution bound her soul permanently to the terrestrial plane. She returns not from evil, but from unresolved karmic debt.'},
-{name:'Odiyan',type:'Odiyan',rarity:'mythic',intensity:'Extreme',haunt:'Rural highways, paddy borders',sighting:'A shapeshifting shadow resembling a large dog reported on the Palakkad border road, October 2023.',backstory:'The Odiyan is a practitioner of the forbidden art of Odividya, enabling shapeshifting into animals — most commonly a dog, a cow, or a large cat. They are hired assassins of a supernatural kind, dispatched to terrorize or eliminate specific individuals. Their presence is felt as an inexplicable dread before the figure is ever seen.',origin:'Living men who voluntarily underwent a severe ritual sacrifice of their humanity in exchange for shapeshifting power. The craft was passed through specific low-caste lineages in northern Kerala and is believed to have disappeared with the last known practitioner in the mid-20th century.'},
-{name:'Neeli',type:'Neeli',rarity:'epic',intensity:'High',haunt:'Crossroads, riverbanks',sighting:'A traveler near Kollam reported a weeping woman at a crossroads who vanished when approached — December 2023.',backstory:'Neeli is a class of vengeful female spirit deeply embedded in Kerala\'s paranormal narrative. The most historically documented case — Kalliyankattu Neeli — terrorized an entire region and required the intervention of a renowned tantric priest. She appears at crossroads or riverbanks, often weeping, and her grief is a lure.',origin:'Betrayal and murder by a trusted partner. The violence of the death combined with the depth of the betrayal creates a spirit of exceptional power that refuses to dissolve into the afterlife until the karmic debt is settled.'},
-{name:'Gulikan',type:'Ritual',rarity:'rare',intensity:'Extreme',haunt:'Village borders, old crossroads',sighting:'An elder in Malappuram reported seeing a towering shadow at the village boundary on the night of a lunar eclipse.',backstory:'Gulikan is not merely a ghost but a deity of absolute destruction in the Malabar tradition. He is propitiated through the Theyyam performance tradition and is considered the emissary of death itself. A sighting of his form is, in classical belief, an unambiguous omen of imminent mortality for the observer or their household.',origin:'Mythology places Gulikan\'s birth at the left toe of Lord Shiva during a period of cosmic wrath. He was assigned the role of executor — both of divine punishment and of the natural order of death.'},
-{name:'Kutti Chathan',type:'Chathan',rarity:'epic',intensity:'High',haunt:'Ancestral homes, old granaries',sighting:'Objects reported moving without cause in a heritage home in Thrissur — electrical disturbances continue for three months.',backstory:'Kutti Chathan is perhaps the most morally ambiguous entity in Kerala\'s supernatural canon. It is bound by ritual to a household or a Mantrikan and serves with fierce loyalty when properly maintained. Neglect of its daily offerings, however, transforms it into a source of relentless domestic chaos — broken vessels, disappearing grain, and unexplained fires.',origin:'Summoned through a precise and dangerous sequence of rituals in ancient esoteric texts. The entity is not a soul of the dead but rather a being called from a liminal space and locked to the physical world through ceremonial binding.'},
-{name:'Karinkali',type:'Ritual',rarity:'uncommon',intensity:'High',haunt:'Old ritual grounds, temple ruins',sighting:'A sudden temperature drop and the overwhelming smell of burning turmeric reported near an abandoned temple in Wayanad.',backstory:'Karinkali manifests as a dark, formless presence associated with destructive feminine energy. Its appearance is heralded by a sudden drop in ambient temperature and a deep oppressive feeling. Unlike many entities, Karinkali does not lure or deceive — it overwhelms directly.',origin:'Invoked during forbidden nocturnal ceremonies associated with the destruction of enemies. Such rituals, once completed, leave the entity unbound if the ritual is abandoned mid-way, allowing it to roam freely.'},
-{name:'Pretham',type:'Ritual',rarity:'common',intensity:'Low',haunt:'Abandoned homes',sighting:'Persistent knocking sounds reported in a derelict colonial-era house in Kottayam for six consecutive nights.',backstory:'Pretham is the generic category for a restless soul in Kerala\'s supernatural taxonomy. They have no specific agenda and no particular power, but their presence is unmistakable — objects displaced, cold spots, and an overwhelming sense of being watched.',origin:'Souls denied proper funerary rites or who died so suddenly that they remained anchored to the physical world by sheer disorientation.'}
+{id:'k1',name:'Yakshi',type:'Yakshi',rarity:'legendary',intensity:'Extreme',threat:'High',time:'Nocturnal (10PM—4AM)',classification:'Vengeful Nature Spirit',haunt:'Isolated forest roads',sighting:'Reported 3 weeks ago on NH-66 near Thrissur — a woman in white seen at 2AM beside a Pala tree.',backstory:'The Yakshi is among Kerala\'s most documented supernatural entities. She appears as an extraordinarily beautiful woman, often near Pala trees whose hypnotic scent she uses to disorient victims. Her manifestations are almost exclusively nocturnal, and encounters have been recorded in folklore across centuries of Malayali oral tradition.',origin:'In the canonical accounts, the Yakshi was a woman of high birth who suffered betrayal and violent death. The intensity of her grief and desire for retribution bound her soul permanently to the terrestrial plane. She returns not from evil, but from unresolved karmic debt.',historical:'Documented in the Aithihyamala (Garland of Legends) as spirits of the Pala trees. Centuries of oral tradition in central Kerala detail their complex relationship with the human world.'},
+{id:'k2',name:'Odiyan',type:'Odiyan',rarity:'mythic',intensity:'Extreme',threat:'Lethal',time:'Deep Night (Midnight—3AM)',classification:'Shapeshifting Sorcerer',haunt:'Rural highways, paddy borders',sighting:'A shapeshifting shadow resembling a large dog reported on the Palakkad border road, October 2023.',backstory:'The Odiyan is a practitioner of the forbidden art of Odividya, enabling shapeshifting into animals — most commonly a dog, a cow, or a large cat. They are hired assassins of a supernatural kind, dispatched to terrorize or eliminate specific individuals. Their presence is felt as an inexplicable dread before the figure is ever seen.',origin:'Living men who voluntarily underwent a severe ritual sacrifice of their humanity in exchange for shapeshifting power. The craft was passed through specific low-caste lineages in northern Kerala and is believed to have disappeared with the last known practitioner in the mid-20th century.',historical:'Once a real caste-based practice in Malabar, it transitioned into folklore after the legal suppression of "Odism" in the early 20th century.'},
+{id:'k3',name:'Neeli',type:'Neeli',rarity:'epic',intensity:'High',threat:'Moderate',time:'Twilight/Midnight',classification:'Vengeful Spirit (Pretham)',haunt:'Crossroads, riverbanks',sighting:'A traveler near Kollam reported a weeping woman at a crossroads who vanished when approached — December 2023.',backstory:'Neeli is a class of vengeful female spirit deeply embedded in Kerala\'s paranormal narrative. The most historically documented case — Kalliyankattu Neeli — terrorized an entire region and required the intervention of a renowned tantric priest. She appears at crossroads or riverbanks, often weeping, and her grief is a lure.',origin:'Betrayal and murder by a trusted partner. The violence of the death combined with the depth of the betrayal creates a spirit of exceptional power that refuses to dissolve into the afterlife until the karmic debt is settled.',historical:'The story of Kalliyankattu Neeli is a cornerstone of Kerala\'s Gothic folklore, often cited as the definitive example of a "Yakshi-type" manifestation.'},
+{id:'k4',name:'Gulikan',type:'Ritual',rarity:'rare',intensity:'Extreme',threat:'Divine',time:'Eclipse/New Moon',classification:'Deity of Destruction',haunt:'Village borders, old crossroads',sighting:'An elder in Malappuram reported seeing a towering shadow at the village boundary on the night of a lunar eclipse.',backstory:'Gulikan is not merely a ghost but a deity of absolute destruction in the Malabar tradition. He is propitiated through the Theyyam performance tradition and is considered the emissary of death itself. A sighting of his form is, in classical belief, an unambiguous omen of imminent mortality for the observer or their household.',origin:'Mythology places Gulikan\'s birth at the left toe of Lord Shiva during a period of cosmic wrath. He was assigned the role of executor — both of divine punishment and of the natural order of death.',historical:'A central figure in North Malabar Theyyam rituals. His masks are among the largest and most imposing in the performance art.'},
+{id:'k5',name:'Kutti Chathan',type:'Chathan',rarity:'epic',intensity:'High',threat:'Medium (Poltergeist)',time:'Continuous (Active 24h)',classification:'Bound Elemental',haunt:'Ancestral homes, old granaries',sighting:'Objects reported moving without cause in a heritage home in Thrissur — electrical disturbances continue for three months.',backstory:'Kutti Chathan is perhaps the most morally ambiguous entity in Kerala\'s supernatural canon. It is bound by ritual to a household or a Mantrikan and serves with fierce loyalty when properly maintained. Neglect of its daily offerings, however, transforms it into a source of relentless domestic chaos — broken vessels, disappearing grain, and unexplained fires.',origin:'Summoned through a precise and dangerous sequence of rituals in ancient esoteric texts. The entity is not a soul of the dead but rather a being called from a liminal space and locked to the physical world through ceremonial binding.',historical:'Believed to be 400 separate entities in folklore, often associated with the Chathan Seva temples in central Kerala.'},
+{id:'k6',name:'Karinkali',type:'Ritual',rarity:'uncommon',intensity:'High',threat:'High',time:'Nocturnal',classification:'Shadow Manifestation',haunt:'Old ritual grounds, temple ruins',sighting:'A sudden temperature drop and the overwhelming smell of burning turmeric reported near an abandoned temple in Wayanad.',backstory:'Karinkali manifests as a dark, formless presence associated with destructive feminine energy. Its appearance is heralded by a sudden drop in ambient temperature and a deep oppressive feeling. Unlike many entities, Karinkali does not lure or deceive — it overwhelms directly.',origin:'Invoked during forbidden nocturnal ceremonies associated with the destruction of enemies. Such rituals, once completed, leave the entity unbound if the ritual is abandoned mid-way, allowing it to roam freely.',historical:'Associated with the more aggressive forms of Kali worship found in isolated forest shrines.'},
+{id:'k7',name:'Pretham',type:'Ritual',rarity:'common',intensity:'Low',threat:'Low',time:'Night',classification:'Restless Soul',haunt:'Abandoned homes',sighting:'Persistent knocking sounds reported in a derelict colonial-era house in Kottayam for six consecutive nights.',backstory:'Pretham is the generic category for a restless soul in Kerala\'s supernatural taxonomy. They have no specific agenda and no particular power, but their presence is unmistakable — objects displaced, cold spots, and an overwhelming sense of being watched.',origin:'Souls denied proper funerary rites or who died so suddenly that they remained anchored to the physical world by sheer disorientation.',historical:'The baseline of paranormal belief in Kerala, appearing in almost every village oral history.'}
 ],
 tamilnadu:[
-{name:'Mohini Pey',type:'Pey',rarity:'epic',intensity:'High',haunt:'Forest crossroads',sighting:'Reported near Kodaikanal forest road — a woman figure vanishing at dawn in April 2024.',backstory:'The Mohini Pey of Tamil folklore is a shape-taking spirit of exceptional beauty that appears at night on forest roads. She draws in travelers through conversation and companionship before revealing her true nature. Unlike Kerala\'s Yakshi, she does not use scent — her power lies entirely in conversation and charm.',origin:'Women who died at childbirth in extreme isolation, or those abandoned and left to perish. The injustice of the abandonment creates the paranormal charge.'},
-{name:'Sudalai Madan',type:'Pey',rarity:'mythic',intensity:'Extreme',haunt:'Cremation grounds, burial sites',sighting:'Ritualistic stone offerings found disturbed at a cremation ground in Madurai — late February 2024.',backstory:'Sudalai Madan is a fearsome deity-spirit complex worshipped in Tamil Nadu\'s folk tradition. He presides over cremation grounds and demands propitiation through specific ritual offerings. His anger when neglected is expressed through illness in families and unexplained deaths of livestock.',origin:'A primordial guardian of the dead assigned to the boundary between the living and deceased worlds. His origins predate organized Shaivite religion and belong to the Dravidian folk stratum.'},
-{name:'Kollivai Pisasu',type:'Pey',rarity:'legendary',intensity:'High',haunt:'Mountain passes, hill forests',sighting:'Kollivai hill forest road — drivers report figures in the mist that disappear on approach. Ongoing.',backstory:'Pisasu is the broad Tamil term for spirits, but the Kollivai variant is specifically associated with the Kolli Hills and their dense forest roads. They are considered remnants of those who died violently on the mountain and whose souls were never ritually released.',origin:'Violent deaths in the hills, compounded by the absence of proper last rites. The isolation of the location prevents the soul from receiving guidance toward the afterlife.'},
-{name:'Muniyandi',type:'Pey',rarity:'rare',intensity:'Moderate',haunt:'Village entrances, boundary stones',sighting:'A boundary stone at a village entrance in Madurai district found displaced — villagers report uneasy dreams.',backstory:'Muniyandi is a boundary guardian spirit prevalent across rural Tamil Nadu. He stands at the entrance of settlements, watching who enters. He is generally protective but becomes aggressive when the boundary markers are disturbed or when outsiders act with disrespect.',origin:'An ancient guardian role assigned to the spirit of a specific caste warrior who died protecting a village. The role became hereditary through ritual.'}
+{id:'t1',name:'Mohini Pey',type:'Pey',rarity:'epic',intensity:'High',threat:'Moderate',time:'Dawn/Dusk',classification:'Seductive Wraith',haunt:'Forest crossroads',sighting:'Reported near Kodaikanal forest road — a woman figure vanishing at dawn in April 2024.',backstory:'The Mohini Pey of Tamil folklore is a shape-taking spirit of exceptional beauty that appears at night on forest roads. She draws in travelers through conversation and companionship before revealing her true nature. Unlike Kerala\'s Yakshi, she does not use scent — her power lies entirely in conversation and charm.',origin:'Women who died at childbirth in extreme isolation, or those abandoned and left to perish. The injustice of the abandonment creates the paranormal charge.',historical:'A recurring figure in rural Tamil ghost stories, often used as a cautionary figure for travelers.'},
+{id:'t2',name:'Sudalai Madan',type:'Pey',rarity:'mythic',intensity:'Extreme',threat:'Extreme',time:'Midnight',classification:'Guardian of the Dead',haunt:'Cremation grounds, burial sites',sighting:'Ritualistic stone offerings found disturbed at a cremation ground in Madurai — late February 2024.',backstory:'Sudalai Madan is a fearsome deity-spirit complex worshipped in Tamil Nadu\'s folk tradition. He presides over cremation grounds and demands propitiation through specific ritual offerings. His anger when neglected is expressed through illness in families and unexplained deaths of livestock.',origin:'A primordial guardian of the dead assigned to the boundary between the living and deceased worlds. His origins predate organized Shaivite religion and belong to the Dravidian folk stratum.',historical:'Commonly worshipped in southern Tamil districts (Tirunelveli, Kanyakumari) as a fierce Kula-Deivam.'},
+{id:'t3',name:'Kollivai Pisasu',type:'Pey',rarity:'legendary',intensity:'High',threat:'Moderate',time:'Misty Nights',classification:'Mist Spirit',haunt:'Mountain passes, hill forests',sighting:'Kollivai hill forest road — drivers report figures in the mist that disappear on approach. Ongoing.',backstory:'Pisasu is the broad Tamil term for spirits, but the Kollivai variant is specifically associated with the Kolli Hills and their dense forest roads. They are considered remnants of those who died violently on the mountain and whose souls were never ritually released.',origin:'Violent deaths in the hills, compounded by the absence of proper last rites. The isolation of the location prevents the soul from receiving guidance toward the afterlife.',historical:'Named after the Kolli Hills, known for their 72 hairpin bends and a long history of mysterious disappearances.'},
+{id:'t4',name:'Muniyandi',type:'Pey',rarity:'rare',intensity:'Moderate',threat:'Low (Protective)',time:'Nocturnal',classification:'Boundary Guardian',haunt:'Village entrances, boundary stones',sighting:'A boundary stone at a village entrance in Madurai district found displaced — villagers report uneasy dreams.',backstory:'Muniyandi is a boundary guardian spirit prevalent across rural Tamil Nadu. He stands at the entrance of settlements, watching who enters. He is generally protective but becomes aggressive when the boundary markers are disturbed or when outsiders act with disrespect.',origin:'An ancient guardian role assigned to the spirit of a specific caste warrior who died protecting a village. The role became hereditary through ritual.',historical:'Often depicted as a giant with a mustache, holding a machete, frequently worshipped at roadside shrines.'}
 ],
 karnataka:[
-{name:'Panjurli',type:'Bhoota',rarity:'mythic',intensity:'High',haunt:'Tuluva sacred groves',sighting:'Offerings found scattered at a Bhoota shrine near Mangalore — custodian reports witnessing a figure in the grove at dusk.',backstory:'Panjurli is one of the most revered Bhoota spirits in the Tulu-speaking coastal Karnataka tradition. He is depicted with boar-like features and is simultaneously feared and worshipped. His presence near a sacred grove (Kaavu) demands absolute silence and respect — violators are struck by sudden illness.',origin:'An ancient forest spirit of the Dravidian tradition, absorbed into the Bhoota Kola worship system of coastal Karnataka over centuries. He predates all organized religious structures in the region.'},
-{name:'Kallurti',type:'Bhoota',rarity:'legendary',intensity:'Moderate',haunt:'Fields, agricultural borders',sighting:'Strange circular marks found on paddy fields near Udupi — farmers report animals refusing to enter the field at night.',backstory:'Kallurti is a female Bhoota worshipped by agricultural communities for protection of crops and cattle. When properly propitiated, she ensures a good harvest. When neglected, she manifests as crop failure, sick cattle, and strange marks in the fields.',origin:'The deified spirit of a woman from an agricultural community who was an exceptionally skilled healer and guardian — elevated to Bhoota status after her natural death.'},
-{name:'Bhoota',type:'Bhoota',rarity:'rare',intensity:'Moderate',haunt:'Sacred groves, ancestral lands',sighting:'An unusual luminescence reported near a centuries-old Bhoota shrine in Dakshina Kannada — October 2023.',backstory:'Bhoota is the overarching class of supernatural beings in the Tulu Nadu tradition, fundamentally different from the ghost concept elsewhere. They are neither purely malevolent nor benevolent but are forces that must be understood and respected within their strict ritual framework.',origin:'Ancestral spirits, deified heroes, and nature forces that have been ritually incorporated into the Bhoota Kola tradition. Their origin spans human, divine, and natural categories.'},
-{name:'Naale Baa',type:'Bhoota',rarity:'uncommon',intensity:'Low',haunt:'Doorways, thresholds',sighting:'Reported in urban Bengaluru outskirts — chalk writing appeared on doors of several homes in a single night. 2023.',backstory:'Naale Baa, literally "Come Tomorrow," is a protective invocation written on doors to deflect a wandering female spirit. The spirit is said to knock on doors at night and call out in a familiar voice — those who open the door are taken. The inscription is believed to trick it into returning the next night indefinitely.',origin:'A malevolent female spirit of unknown precise origin, documented across coastal Karnataka and Goa. Its periodic reappearances in urban folklore suggest it represents collective anxiety around the threshold between the living and the dead.'}
-]
+{id:'ka1',name:'Panjurli',type:'Bhoota',rarity:'mythic',intensity:'High',threat:'High (Divine)',time:'Evening/Dusk',classification:'Nature Deity (Boar)',haunt:'Tuluva sacred groves',sighting:'Offerings found scattered at a Bhoota shrine near Mangalore — custodian reports witnessing a figure in the grove at dusk.',backstory:'Panjurli is one of the most revered Bhoota spirits in the Tulu-speaking coastal Karnataka tradition. He is depicted with boar-like features and is simultaneously feared and worshipped. His presence near a sacred grove (Kaavu) demands absolute silence and respect — violators are struck by sudden illness.',origin:'An ancient forest spirit of the Dravidian tradition, absorbed into the Bhoota Kola worship system of coastal Karnataka over centuries. He predates all organized religious structures in the region.',historical:'One of the primary spirits in the Kantara folklore tradition of coastal Karnataka.'},
+{id:'ka2',name:'Kallurti',type:'Bhoota',rarity:'legendary',intensity:'Moderate',threat:'Low',time:'Harvest Season',classification:'Agricultural Guardian',haunt:'Fields, agricultural borders',sighting:'Strange circular marks found on paddy fields near Udupi — farmers report animals refusing to enter the field at night.',backstory:'Kallurti is a female Bhoota worshipped by agricultural communities for protection of crops and cattle. When properly propitiated, she ensures a good harvest. When neglected, she manifests as crop failure, sick cattle, and strange marks in the fields.',origin:'The deified spirit of a woman from an agricultural community who was an exceptionally skilled healer and guardian — elevated to Bhoota status after her natural death.',historical:'A central figure in the oral epics (Paddanas) of the Tulu people.'},
+{id:'ka3',name:'Bhoota',type:'Bhoota',rarity:'rare',intensity:'Moderate',threat:'Variable',time:'Ritual Nights',classification:'Ancestral Force',haunt:'Sacred groves, ancestral lands',sighting:'An unusual luminescence reported near a centuries-old Bhoota shrine in Dakshina Kannada — October 2023.',backstory:'Bhoota is the overarching class of supernatural beings in the Tulu Nadu tradition, fundamentally different from the ghost concept elsewhere. They are neither purely malevolent nor benevolent but are forces that must be understood and respected within their strict ritual framework.',origin:'Ancestral spirits, deified heroes, and nature forces that have been ritually incorporated into the Bhoota Kola tradition. Their origin spans human, divine, and natural categories.',historical:'The Bhoota Kola performance is a thousand-year-old ritual tradition that continues to be a major cultural force today.'},
+{id:'ka4',name:'Naale Baa',type:'Bhoota',rarity:'uncommon',intensity:'Low',threat:'Medium',time:'Midnight',classification:'Threshold Spirit',haunt:'Doorways, thresholds',sighting:'Reported in urban Bengaluru outskirts — chalk writing appeared on doors of several homes in a single night. 2023.',backstory:'Naale Baa, literally "Come Tomorrow," is a protective invocation written on doors to deflect a wandering female spirit. The spirit is said to knock on doors at night and call out in a familiar voice — those who open the door are taken. The inscription is believed to trick it into returning the next night indefinitely.',origin:'A malevolent female spirit of unknown precise origin, documented across coastal Karnataka and Goa. Its periodic reappearances in urban folklore suggest it represents collective anxiety around the threshold between the living and the dead.',historical:'Became a viral urban legend in the 1990s in Bengaluru, leading to thousands of homes writing the phrase on their doors.'}
+  ]
 };
 
 function getRegionGhosts(key){return LORE[key]||LORE.kerala;}
@@ -410,6 +470,9 @@ function trySpawnGhost(center){
 
 // ── SHEET ──────────────────────────────────────────────────
 function openSheet(ghost,loc){
+  activeGhost=ghost;
+  markDiscovered(ghost.id); // Save to archive when investigated
+  
   document.getElementById('sh-name').textContent=ghost.name;
   document.getElementById('sh-tag').textContent=ghost.type+' Entity • '+ghost.rarity;
   document.getElementById('sh-region').textContent=({'kerala':'Kerala','tamilnadu':'Tamil Nadu','karnataka':'Karnataka'})[currentRegionKey]||'—';
@@ -424,6 +487,120 @@ function openSheet(ghost,loc){
   dot.className = 'ghost-inner rarity-' + ghost.rarity;
   
   document.getElementById('sheet').classList.add('open');
+}
+
+// ── ARCHIVE LOGIC ──────────────────────────────────────────
+function toggleArchive(){
+  var s=document.getElementById('archive-sheet');
+  s.classList.toggle('open');
+  if(s.classList.contains('open')) renderArchive();
+}
+
+function renderArchive(){
+  var list=document.getElementById('archive-list');
+  list.innerHTML='';
+  
+  // Get all entities across all regions
+  var all=[];
+  Object.keys(LORE).forEach(rk=>{
+    LORE[rk].forEach(g=>{
+      var isDisc=discoveredGhosts.includes(g.id);
+      all.push({data:g, region:rk, discovered:isDisc});
+    });
+  });
+  
+  // Sort: Discovered first, then by rarity
+  var rarityOrder={mythic:0, legendary:1, epic:2, rare:3, uncommon:4, common:5};
+  all.sort((a,b)=>{
+    if(a.discovered!==b.discovered) return b.discovered?0:1; // Discovered first
+    if(a.discovered && b.discovered){
+        return rarityOrder[a.data.rarity]-rarityOrder[b.data.rarity];
+    }
+    return 0;
+  });
+
+  all.forEach(item=>{
+    var g=item.data;
+    var card=document.createElement('div');
+    card.className='archive-card'+(item.discovered?'':' locked');
+    var rColor = getRarityColor(g.rarity);
+    card.style.setProperty('--gc', rColor);
+    
+    var html=`
+      <div class="glow"></div>
+      <div class="r-tag" style="background:${rColor}22; color:${rColor}">${g.rarity}</div>
+      <h3>${item.discovered?g.name:'Unknown Entity'}</h3>
+      <div class="meta">
+        <span>${g.type}</span>
+        <span>${item.region.toUpperCase()}</span>
+      </div>
+    `;
+    card.innerHTML=html;
+    if(item.discovered){
+      card.onclick=()=>openDetail(g);
+    }
+    list.appendChild(card);
+  });
+}
+
+function openDetail(g){
+  var body=document.getElementById('detail-body');
+  var color=getRarityColor(g.rarity);
+  
+  body.innerHTML=`
+    <div class="detail-hero" style="--gc:${color}">
+      <div class="glow-bg"></div>
+      <div style="position:relative; z-index:2;">
+        <div class="r-tag" style="background:${color}22; color:${color}; margin-bottom:10px;">${g.rarity}</div>
+        <h1 style="font-size:2.5rem; font-weight:800; margin-bottom:5px; margin-top:0;">${g.name}</h1>
+        <div style="display:flex; gap:15px; font-size:0.8rem; opacity:0.6; font-weight:600; text-transform:uppercase; letter-spacing:1px;">
+          <span>${g.classification}</span>
+          <span>•</span>
+          <span>${g.threat} Threat</span>
+        </div>
+      </div>
+    </div>
+    <div class="detail-content">
+      <div class="stat-grid">
+        <div class="stat-item"><div class="label">Sighting Window</div><div class="val">${g.time}</div></div>
+        <div class="stat-item"><div class="label">Primary Haunt</div><div class="val">${g.haunt}</div></div>
+        <div class="stat-item"><div class="label">Signal Intensity</div><div class="val">${g.intensity}</div></div>
+        <div class="stat-item"><div class="label">Detection Status</div><div class="val">Verified</div></div>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Recent Field Report</h4>
+        <p>${g.sighting}</p>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Investigation Dossier</h4>
+        <p>${g.backstory}</p>
+      </div>
+
+      <div class="detail-section">
+        <h4>Lore & Origins</h4>
+        <p>${g.origin}</p>
+      </div>
+
+      <div class="detail-section">
+        <h4>Historical Context</h4>
+        <p>${g.historical}</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('detail-sheet').classList.add('open');
+}
+
+function closeDetail(){
+  document.getElementById('detail-sheet').classList.remove('open');
+}
+
+function markDiscovered(id){
+  if(!discoveredGhosts.includes(id)){
+    discoveredGhosts.push(id);
+    localStorage.setItem('neeli_archive', JSON.stringify(discoveredGhosts));
+  }
 }
 document.getElementById('sheet-close').addEventListener('click',function(){document.getElementById('sheet').classList.remove('open');});
 map.on('click',function(){document.getElementById('sheet').classList.remove('open');});
