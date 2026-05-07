@@ -12,12 +12,13 @@
 :root{--bg:#050505;--txt:rgba(255,255,255,.88);--txt2:rgba(255,255,255,.45);--glass:rgba(12,12,12,.55);--border:rgba(255,255,255,.06)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Syne',sans-serif;color:var(--txt)}
-#map{position:absolute;inset:0;z-index:1;filter:brightness(1.0) contrast(1.1) saturate(0.85); transition: filter 2s ease;}
+#map{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:0;background:var(--bg);filter:brightness(1.1) contrast(1.1) saturate(0.85);transition:filter 2s ease;}
+.leaflet-container{background:var(--bg)!important}
 .leaflet-control-zoom,.leaflet-control-attribution{display:none!important}
 .glass{background:var(--glass);backdrop-filter:blur(22px) saturate(130%);-webkit-backdrop-filter:blur(22px) saturate(130%);border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.5)}
 
 /* TOP BAR */
-#top-bar{position:fixed;top:0;left:0;width:100%;height:calc(56px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 16px 0;display:flex;align-items:center;gap:12px;border-radius:0;border:none;border-bottom:1px solid var(--border);z-index:1000}
+#top-bar{position:fixed;top:0;left:0;width:100%;height:calc(56px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 16px 0;display:flex;align-items:center;gap:12px;border-radius:0;border:none;border-bottom:1px solid var(--border);z-index:1001}
 #top-title{font-size:13px;font-weight:800;letter-spacing:.55em;text-transform:uppercase;opacity:.9;white-space:nowrap}
 #search-wrap{flex:1;position:relative}
 #search-input{width:100%;height:36px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;padding:0 12px 0 34px;outline:none}
@@ -117,9 +118,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .sec-txt{font-size:14px;line-height:1.7;color:rgba(255,255,255,.82)}
 
 /* FOG & PARTICLES */
-#fog{position:absolute;top:0;left:0;width:200%;height:200%;opacity:.08;z-index:2;pointer-events:none;animation:fogA 120s linear infinite;background:url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png') repeat-x;background-size:100% 100%}
+#fog{position:absolute;top:0;left:0;width:200%;height:200%;opacity:.08;z-index:1;pointer-events:none;animation:fogA 120s linear infinite;background:url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png') repeat-x;background-size:100% 100%}
 @keyframes fogA{0%{transform:translate(0,0)}100%{transform:translate(-50%,-10%)}}
-#pts{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+#pts{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 .pt{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:ptA linear infinite}
 @keyframes ptA{0%{opacity:0;transform:translateY(0) scale(1)}20%{opacity:.25}80%{opacity:.25}100%{opacity:0;transform:translateY(-70px) scale(0)}}
 
@@ -171,7 +172,87 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .stat-item .label{font-size:0.6rem;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:1px;}
 .stat-item .val{font-size:0.85rem;font-weight:600;color:#fff;}
 
-#archive-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;margin-right:10px;}
+#archive-btn{
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.06);
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.1);
+  cursor:pointer;
+  margin-right:6px;
+  flex-shrink:0;
+  position:relative;
+  z-index:1100;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  transition:background .15s ease, transform .1s ease;
+  user-select:none;
+  -webkit-user-select:none;
+}
+#archive-btn:active{background:rgba(255,255,255,0.14);transform:scale(0.92);}
+#archive-sheet{
+  display:flex;flex-direction:column;
+  z-index:5000;
+  background:rgba(6,6,6,0.96);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border-left:1px solid rgba(255,255,255,0.07);
+  transform:translateX(101%);
+  transition:transform 0.45s cubic-bezier(0.4,0,0.2,1);
+  position:fixed;top:0;height:100%;
+  will-change:transform;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+#archive-sheet.open{transform:translateX(0);}
+.archive-overlay{
+  display:none;
+  position:fixed;inset:0;
+  z-index:4999;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+.archive-overlay.open{display:block;}
+.archive-header{
+  padding:calc(20px + env(safe-area-inset-top)) 20px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(255,255,255,0.01);
+  flex-shrink:0;
+}
+.archive-header h2{font-weight:800;letter-spacing:.02em;font-size:1.2rem;color:#fff;margin:0;text-transform:uppercase;letter-spacing:.1em;}
+.archive-close{
+  width:44px;height:44px;
+  background:rgba(255,255,255,0.06);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  transition:background .15s ease, transform .1s ease;
+  flex-shrink:0;
+}
+.archive-close:active{background:rgba(255,255,255,0.14);transform:scale(0.9);}
+#archive-list{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:1fr;gap:12px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.archive-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:18px;
+  padding:18px;
+  display:flex;flex-direction:column;gap:10px;
+  transition:background .2s ease;
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.archive-card:active{background:rgba(255,255,255,0.07);}
+.archive-card.locked{opacity:0.2;filter:grayscale(1);pointer-events:none;}
+.archive-card .r-tag{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:999px;width:fit-content;font-weight:700;}
+.archive-card h3{font-size:1rem;font-weight:700;margin:0;color:rgba(255,255,255,0.9);}
+.archive-card .meta{font-size:0.7rem;color:rgba(255,255,255,0.3);display:flex;gap:12px;letter-spacing:.05em;text-transform:uppercase;}
+.archive-card .glow{position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle, var(--gc) 0%, transparent 70%);opacity:0.08;pointer-events:none;}
 
 @media (max-width:600px){
   #archive-sheet{width:100%;}
@@ -206,7 +287,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <div id="top-bar" class="glass">
   <div style="display:flex; align-items:center;">
-    <div id="archive-btn" onclick="toggleArchive()" title="Folklore Archive">
+    <div id="archive-btn" title="Folklore Archive">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
     </div>
     <div id="top-title">NEELI</div>
@@ -255,12 +336,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   <div class="sh-sec"><div class="sec-lbl">Last Reported Sighting</div><div id="sh-sighting" class="sec-txt"></div></div>
 </div>
 
+<!-- ARCHIVE OVERLAY BACKDROP -->
+<div class="archive-overlay" id="archive-overlay"></div>
+
 <!-- ARCHIVE DRAWER -->
 <div id="archive-sheet">
   <div class="archive-header">
-    <h2>Folklore Archive</h2>
-    <div class="archive-close" onclick="toggleArchive()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    <h2>Archive</h2>
+    <div class="archive-close" id="archive-close-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </div>
   </div>
   <div id="archive-list"></div>
@@ -310,6 +394,7 @@ var isNight=hr>=18||hr<6;
 var banner=document.getElementById('status-banner');
 if(hr>=6&&hr<18){banner.textContent='Daylight — Paranormal signals faint';banner.className='glass s-day';}
 else if(hr>=18&&hr<24){banner.textContent='Twilight — Active monitoring frequencies';banner.className='glass s-eve';}
+var LORE = {
 kerala:[
 {id:'k1',name:'Yakshi',type:'Yakshi',rarity:'legendary',intensity:'Extreme',threat:'High',time:'Nocturnal (10PM—4AM)',classification:'Vengeful Nature Spirit',haunt:'Isolated forest roads',sighting:'Reported 3 weeks ago on NH-66 near Thrissur — a woman in white seen at 2AM beside a Pala tree.',backstory:'The Yakshi is among Kerala\'s most documented supernatural entities. She appears as an extraordinarily beautiful woman, often near Pala trees whose hypnotic scent she uses to disorient victims. Her manifestations are almost exclusively nocturnal, and encounters have been recorded in folklore across centuries of Malayali oral tradition.',origin:'In the canonical accounts, the Yakshi was a woman of high birth who suffered betrayal and violent death. The intensity of her grief and desire for retribution bound her soul permanently to the terrestrial plane. She returns not from evil, but from unresolved karmic debt.',historical:'Documented in the Aithihyamala (Garland of Legends) as spirits of the Pala trees. Centuries of oral tradition in central Kerala detail their complex relationship with the human world.'},
 {id:'k2',name:'Odiyan',type:'Odiyan',rarity:'mythic',intensity:'Extreme',threat:'Lethal',time:'Deep Night (Midnight—3AM)',classification:'Shapeshifting Sorcerer',haunt:'Rural highways, paddy borders',sighting:'A shapeshifting shadow resembling a large dog reported on the Palakkad border road, October 2023.',backstory:'The Odiyan is a practitioner of the forbidden art of Odividya, enabling shapeshifting into animals — most commonly a dog, a cow, or a large cat. They are hired assassins of a supernatural kind, dispatched to terrorize or eliminate specific individuals. Their presence is felt as an inexplicable dread before the figure is ever seen.',origin:'Living men who voluntarily underwent a severe ritual sacrifice of their humanity in exchange for shapeshifting power. The craft was passed through specific low-caste lineages in northern Kerala and is believed to have disappeared with the last known practitioner in the mid-20th century.',historical:'Once a real caste-based practice in Malabar, it transitioned into folklore after the legal suppression of "Odism" in the early 20th century.'},
@@ -525,10 +610,27 @@ function openSheet(ghost,loc){
 
 // ── ARCHIVE LOGIC ──────────────────────────────────────────
 function toggleArchive(){
-  var s=document.getElementById('archive-sheet');
-  s.classList.toggle('open');
-  if(s.classList.contains('open')) renderArchive();
+  var s = document.getElementById('archive-sheet');
+  var o = document.getElementById('archive-overlay');
+  var isOpen = s.classList.toggle('open');
+  if(o) o.classList.toggle('open', isOpen);
+  if(isOpen) renderArchive();
+  // Ensure map adjusts if layout shifted, though absolute/fixed usually doesn't need this
+  // but it's good practice for mobile viewports
+  if(typeof map !== 'undefined' && map) setTimeout(function(){ map.invalidateSize(); }, 400);
 }
+
+document.getElementById('archive-btn').addEventListener('click', function(e){
+  e.preventDefault();
+  toggleArchive();
+});
+
+var arcClose = document.getElementById('archive-close-btn');
+if(arcClose) arcClose.addEventListener('click', toggleArchive);
+
+var arcOver = document.getElementById('archive-overlay');
+if(arcOver) arcOver.addEventListener('click', toggleArchive);
+
 
 function renderArchive(){
   var list=document.getElementById('archive-list');
@@ -562,19 +664,31 @@ function renderArchive(){
     
     var html=`
       <div class="glow"></div>
-      <div class="r-tag" style="background:${rColor}22; color:${rColor}">${g.rarity}</div>
+      <div class="r-tag" style="background:${rColor}15; color:${rColor}; border:1px solid ${rColor}30">${g.rarity}</div>
       <h3>${item.discovered?g.name:'Unknown Entity'}</h3>
       <div class="meta">
         <span>${g.type}</span>
+        <span>•</span>
         <span>${item.region.toUpperCase()}</span>
       </div>
     `;
     card.innerHTML=html;
     if(item.discovered){
-      card.onclick=()=>openDetail(g);
+      card.addEventListener('click', function(){ openDetail(g); });
     }
     list.appendChild(card);
   });
+}
+
+function getRarityColor(r){
+  return {
+    common: '#8e9aaf',
+    uncommon: '#6a994e',
+    rare: '#457b9d',
+    epic: '#8338ec',
+    legendary: '#ffb703',
+    mythic: '#9b2226'
+  }[r] || '#ffffff';
 }
 
 function openDetail(g){
@@ -629,6 +743,9 @@ function openDetail(g){
 function closeDetail(){
   document.getElementById('detail-sheet').classList.remove('open');
 }
+
+// Attach listener to detail close button (it has a class archive-close)
+document.querySelector('#detail-sheet .archive-close').addEventListener('click', closeDetail);
 
 function markDiscovered(id){
   if(!discoveredGhosts.includes(id)){
