@@ -144,33 +144,84 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 @keyframes pulseA{0%{transform:scale(1);opacity:.8}100%{transform:scale(4);opacity:0}}
 
 /* ARCHIVE UI */
-#archive-sheet{display:flex;flex-direction:column;z-index:3000;background:rgba(8,8,8,0.92);backdrop-filter:blur(30px) saturate(180%);border-left:1px solid rgba(255,255,255,0.08);transform:translateX(100%);transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);position:fixed;top:0;height:100%;}
-#archive-sheet.open{transform:translateX(0);}
-.archive-header{padding:30px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.02);}
-.archive-header h2{font-weight:700;letter-spacing:-1px;font-size:1.4rem;color:#fff;margin:0;}
-.archive-close{width:40px;height:40px;background:rgba(255,255,255,0.05);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-#archive-list{flex:1;overflow-y:auto;padding:20px;display:grid;grid-template-columns:1fr;gap:15px;}
-.archive-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:0.3s;cursor:pointer;position:relative;overflow:hidden;}
-.archive-card:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.12);transform:translateY(-2px);}
-.archive-card.locked{opacity:0.25;filter:grayscale(1);pointer-events:none;}
-.archive-card .r-tag{font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;border-radius:10px;width:fit-content;font-weight:700;}
-.archive-card h3{font-size:1.1rem;font-weight:600;margin:0;color:#fff;}
-.archive-card .meta{font-size:0.75rem;color:rgba(255,255,255,0.4);display:flex;gap:15px;}
-.archive-card .glow{position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle, var(--gc) 0%, transparent 70%);opacity:0.1;pointer-events:none;}
+/* ARCHIVE UI REDESIGN */
+#archive-sheet{
+  display:flex;flex-direction:column;
+  z-index:5000;
+  background:rgba(10,10,10,0.94);
+  backdrop-filter:blur(50px) saturate(200%);
+  -webkit-backdrop-filter:blur(50px) saturate(200%);
+  border-left:1px solid rgba(255,255,255,0.08);
+  transform:translateX(101%);
+  transition:transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position:fixed;top:0;height:100%;
+  will-change:transform;
+}
+.archive-header{
+  padding:calc(30px + env(safe-area-inset-top)) 24px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex;justify-content:space-between;align-items:flex-start;
+  background:linear-gradient(to bottom, rgba(255,255,255,0.02), transparent);
+}
+.archive-header div h2{
+  font-weight:900;letter-spacing:0.2em;font-size:1.3rem;color:#fff;margin:0;text-transform:uppercase;
+}
+.archive-header div p{
+  font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;
+}
+.archive-close{
+  width:40px;height:40px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+.archive-close:active{background:rgba(255,255,255,0.15);transform:scale(0.9);}
 
-#detail-sheet{z-index:4000;background:#080808;padding:0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);position:fixed;top:0;left:0;right:0;height:100%;}
-#detail-sheet.open{transform:translateY(0);}
-.detail-hero{height:40vh;position:relative;display:flex;align-items:flex-end;padding:30px 20px;overflow:hidden;}
-.detail-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:70%;background:linear-gradient(transparent, #080808);}
-.detail-hero .glow-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:150%;height:150%;background:radial-gradient(circle, var(--gc) 0%, transparent 60%);opacity:0.15;filter:blur(40px);}
-.detail-content{flex:1;overflow-y:auto;padding:30px 20px;background:#080808;}
-.detail-section{margin-bottom:40px;}
-.detail-section h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:15px;font-weight:700;}
-.detail-section p{font-size:0.95rem;line-height:1.7;color:rgba(255,255,255,0.7);font-weight:400;margin:0;}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:30px;}
-.stat-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);padding:15px;border-radius:15px;}
-.stat-item .label{font-size:0.6rem;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:1px;}
-.stat-item .val{font-size:0.85rem;font-weight:600;color:#fff;}
+.archive-region-sec{margin-bottom:30px;padding:0 20px;}
+.archive-region-sec h4{
+  font-size:0.75rem;text-transform:uppercase;letter-spacing:0.3em;color:rgba(255,255,255,0.25);
+  margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:10px;
+}
+
+#archive-list{flex:1;overflow-y:auto;padding:24px 0;scroll-behavior:smooth;}
+.archive-card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:20px;
+  display:flex;flex-direction:column;gap:12px;
+  transition:all 0.25s ease;
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  margin-bottom:16px;
+}
+.archive-card:active{background:rgba(255,255,255,0.08);transform:scale(0.98);}
+.archive-card.locked{opacity:0.3;filter:saturate(0);}
+.archive-card .r-tag{
+  font-size:0.55rem;text-transform:uppercase;letter-spacing:0.15em;padding:4px 10px;border-radius:4px;
+  width:fit-content;font-weight:800;background:rgba(255,255,255,0.05);
+}
+.archive-card h3{font-size:1.15rem;font-weight:800;margin:0;color:rgba(255,255,255,0.95);letter-spacing:0.02em;}
+.archive-card .summary{font-size:0.85rem;line-height:1.5;color:rgba(255,255,255,0.55);font-weight:400;}
+.archive-card .footer{
+  display:flex;justify-content:space-between;align-items:center;margin-top:5px;
+  font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);
+}
+.archive-card .glow{position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle, var(--gc) 0%, transparent 70%);opacity:0.1;pointer-events:none;}
+
+#detail-sheet{
+  z-index:6000;background:#080808;padding:0;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position:fixed;top:0;left:0;right:0;height:100%;
+}
+.detail-hero{height:45vh;position:relative;display:flex;align-items:flex-end;padding:40px 24px;overflow:hidden;}
+.detail-content{flex:1;overflow-y:auto;padding:40px 24px;background:#080808;padding-bottom:100px;}
+.detail-section h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:15px;font-weight:800;}
+.detail-section p{font-size:1rem;line-height:1.8;color:rgba(255,255,255,0.75);margin-bottom:30px;}
+.stat-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);padding:18px;border-radius:12px;}
 
 #archive-btn{
   width:44px;height:44px;
@@ -342,9 +393,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 <!-- ARCHIVE DRAWER -->
 <div id="archive-sheet">
   <div class="archive-header">
-    <h2>Archive</h2>
+    <div>
+      <h2>Archive</h2>
+      <p>Paranormal Records & Folklore Entities</p>
+    </div>
     <div class="archive-close" id="archive-close-btn">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </div>
   </div>
   <div id="archive-list"></div>
@@ -633,50 +687,51 @@ if(arcOver) arcOver.addEventListener('click', toggleArchive);
 
 
 function renderArchive(){
-  var list=document.getElementById('archive-list');
-  list.innerHTML='';
+  var list = document.getElementById('archive-list');
+  list.innerHTML = '';
   
-  // Get all entities across all regions
-  var all=[];
-  Object.keys(LORE).forEach(rk=>{
-    LORE[rk].forEach(g=>{
-      var isDisc=discoveredGhosts.includes(g.id);
-      all.push({data:g, region:rk, discovered:isDisc});
-    });
-  });
-  
-  // Sort: Discovered first, then by rarity
-  var rarityOrder={mythic:0, legendary:1, epic:2, rare:3, uncommon:4, common:5};
-  all.sort((a,b)=>{
-    if(a.discovered!==b.discovered) return b.discovered?0:1; // Discovered first
-    if(a.discovered && b.discovered){
-        return rarityOrder[a.data.rarity]-rarityOrder[b.data.rarity];
-    }
-    return 0;
-  });
+  var regions = {
+    'kerala': 'Kerala Folklore Division',
+    'tamilnadu': 'Tamil Nadu Records',
+    'karnataka': 'Karnataka Intelligence'
+  };
 
-  all.forEach(item=>{
-    var g=item.data;
-    var card=document.createElement('div');
-    card.className='archive-card'+(item.discovered?'':' locked');
-    var rColor = getRarityColor(g.rarity);
-    card.style.setProperty('--gc', rColor);
+  Object.keys(regions).forEach(rk => {
+    var sec = document.createElement('div');
+    sec.className = 'archive-region-sec';
+    sec.innerHTML = `<h4>${regions[rk]}</h4>`;
     
-    var html=`
-      <div class="glow"></div>
-      <div class="r-tag" style="background:${rColor}15; color:${rColor}; border:1px solid ${rColor}30">${g.rarity}</div>
-      <h3>${item.discovered?g.name:'Unknown Entity'}</h3>
-      <div class="meta">
-        <span>${g.type}</span>
-        <span>•</span>
-        <span>${item.region.toUpperCase()}</span>
-      </div>
-    `;
-    card.innerHTML=html;
-    if(item.discovered){
-      card.addEventListener('click', function(){ openDetail(g); });
-    }
-    list.appendChild(card);
+    var regionGhosts = LORE[rk] || [];
+    regionGhosts.forEach(g => {
+      var isDisc = discoveredGhosts.includes(g.id);
+      var card = document.createElement('div');
+      card.className = 'archive-card' + (isDisc ? '' : ' locked');
+      var rColor = getRarityColor(g.rarity);
+      card.style.setProperty('--gc', rColor);
+      
+      // Short summary from backstory or a fallback
+      var summaryText = isDisc ? (g.backstory.substring(0, 85) + '...') : 'Access restricted. Entity data encrypted.';
+      
+      var html = `
+        <div class="glow"></div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="r-tag" style="border:1px solid ${rColor}50; color:${rColor}">${g.rarity} Entity</div>
+          ${isDisc ? `<div style="font-size:0.6rem; color:${rColor}; font-weight:800; opacity:0.6;">THREAT: ${g.threat.toUpperCase()}</div>` : ''}
+        </div>
+        <h3>${isDisc ? g.name : 'Classified Entity'}</h3>
+        <div class="summary">${summaryText}</div>
+        <div class="footer">
+          <span>${isDisc ? g.classification : 'Unknown Origin'}</span>
+          <span>${isDisc ? 'Sighting: ' + g.sighting.split(' ')[0] : 'Sighting: Restricted'}</span>
+        </div>
+      `;
+      card.innerHTML = html;
+      if(isDisc){
+        card.addEventListener('click', function(){ openDetail(g); });
+      }
+      sec.appendChild(card);
+    });
+    list.appendChild(sec);
   });
 }
 
@@ -692,48 +747,56 @@ function getRarityColor(r){
 }
 
 function openDetail(g){
-  var body=document.getElementById('detail-body');
-  var color=getRarityColor(g.rarity);
+  var body = document.getElementById('detail-body');
+  var color = getRarityColor(g.rarity);
   
-  body.innerHTML=`
+  body.innerHTML = `
     <div class="detail-hero" style="--gc:${color}">
-      <div class="glow-bg"></div>
+      <div style="position:absolute; inset:0; background:linear-gradient(transparent, #080808); z-index:1;"></div>
       <div style="position:relative; z-index:2;">
-        <div class="r-tag" style="background:${color}22; color:${color}; margin-bottom:10px;">${g.rarity}</div>
-        <h1 style="font-size:2.5rem; font-weight:800; margin-bottom:5px; margin-top:0;">${g.name}</h1>
-        <div style="display:flex; gap:15px; font-size:0.8rem; opacity:0.6; font-weight:600; text-transform:uppercase; letter-spacing:1px;">
+        <div class="r-tag" style="background:${color}22; color:${color}; margin-bottom:12px; border:1px solid ${color}40">${g.rarity.toUpperCase()} RECORD</div>
+        <h1 style="font-size:2.8rem; font-weight:900; margin:0; letter-spacing:-1px; line-height:1;">${g.name}</h1>
+        <div style="display:flex; gap:15px; font-size:0.7rem; color:rgba(255,255,255,0.4); font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:15px;">
           <span>${g.classification}</span>
           <span>•</span>
-          <span>${g.threat} Threat</span>
+          <span>THREAT: ${g.threat}</span>
         </div>
       </div>
     </div>
+
     <div class="detail-content">
-      <div class="stat-grid">
-        <div class="stat-item"><div class="label">Sighting Window</div><div class="val">${g.time}</div></div>
-        <div class="stat-item"><div class="label">Primary Haunt</div><div class="val">${g.haunt}</div></div>
-        <div class="stat-item"><div class="label">Signal Intensity</div><div class="val">${g.intensity}</div></div>
-        <div class="stat-item"><div class="label">Detection Status</div><div class="val">Verified</div></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:40px;">
+        <div class="stat-item">
+          <div style="font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Window</div>
+          <div style="font-size:0.85rem; font-weight:600;">${g.time}</div>
+        </div>
+        <div class="stat-item">
+          <div style="font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Intensity</div>
+          <div style="font-size:0.85rem; font-weight:600; color:${color}">${g.intensity}</div>
+        </div>
       </div>
-      
+
       <div class="detail-section">
-        <h4>Recent Field Report</h4>
-        <p>${g.sighting}</p>
-      </div>
-      
-      <div class="detail-section">
-        <h4>Investigation Dossier</h4>
+        <h4>Full Lore & Behavior</h4>
         <p>${g.backstory}</p>
       </div>
 
       <div class="detail-section">
-        <h4>Lore & Origins</h4>
+        <h4>Historical Origin</h4>
         <p>${g.origin}</p>
       </div>
 
       <div class="detail-section">
-        <h4>Historical Context</h4>
+        <h4>Paranormal Context</h4>
         <p>${g.historical}</p>
+      </div>
+
+      <div class="detail-section">
+        <h4>Recent Intelligence</h4>
+        <div class="stat-item" style="border-left:3px solid ${color}">
+          <div style="font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Last Reported Sighting</div>
+          <div style="font-size:0.9rem; line-height:1.5; opacity:0.8;">${g.sighting}</div>
+        </div>
       </div>
     </div>
   `;
