@@ -39,8 +39,32 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 /* FILTER ROW */
 #filter-row{position:fixed;top:calc(56px + env(safe-area-inset-top) + 62px);left:0;width:100%;padding:0 14px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;z-index:1000}
 #filter-row::-webkit-scrollbar{display:none}
-.chip{height:30px;padding:0 14px;border-radius:999px;font-size:11px;font-weight:700;color:var(--txt2);white-space:nowrap;display:flex;align-items:center;cursor:pointer;background:rgba(18,18,18,.7);border:1px solid var(--border);backdrop-filter:blur(8px);transition:all .3s ease;letter-spacing:.04em}
-.chip.active{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.18)}
+.chip{
+  height:32px;padding:0 16px;border-radius:999px;font-size:11px;font-weight:700;color:var(--txt2);
+  white-space:nowrap;display:flex;align-items:center;gap:8px;cursor:pointer;
+  background:rgba(18,18,18,0.7);border:1px solid var(--border);backdrop-filter:blur(12px);
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);letter-spacing:0.06em;text-transform:uppercase;
+}
+.chip::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--dot-c, #8e9aaf);
+  box-shadow:0 0 8px var(--dot-c, #8e9aaf);
+  opacity:0.6;transition:all 0.3s ease;
+}
+.chip.active{
+  background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);
+  box-shadow:0 0 20px rgba(255,255,255,0.05);
+}
+.chip.active::before{opacity:1;transform:scale(1.2);box-shadow:0 0 12px var(--dot-c, #8e9aaf);}
+
+/* Category Dot Colors */
+.chip[data-filter="Yakshi"]{--dot-c:#ff4d6d;}
+.chip[data-filter="Odiyan"]{--dot-c:#fb8500;}
+.chip[data-filter="Neeli"]{--dot-c:#48cae4;}
+.chip[data-filter="Ritual"]{--dot-c:#7209b7;}
+.chip[data-filter="Chathan"]{--dot-c:#9b2226;}
+.chip[data-filter="all"]{--dot-c:#8e9aaf;}
+.chip[data-filter="Bhoota"]{--dot-c:#ffb703;}
 
 /* BOTTOM BAR */
 #bottom-bar{position:fixed;bottom:0;left:0;width:100%;height:calc(54px + env(safe-area-inset-bottom));padding:0 22px env(safe-area-inset-bottom);display:flex;justify-content:space-between;align-items:center;border-radius:0;border:none;border-top:1px solid var(--border);z-index:1000}
