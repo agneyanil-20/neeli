@@ -50,12 +50,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 #refresh-btn:active{background:rgba(255,255,255,.14);transform:rotate(180deg) scale(.92)}
 
 /* PERMISSION OVERLAY */
-#perm-overlay{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px}
-#perm-card{max-width:360px;width:100%;background:rgba(14,14,14,.9);border:1px solid var(--border);border-radius:24px;padding:40px 28px;text-align:center}
-#perm-card h2{font-size:22px;font-weight:800;letter-spacing:.04em;margin-bottom:12px}
-#perm-card p{font-size:14px;line-height:1.65;color:var(--txt2);margin-bottom:32px}
-#perm-allow-btn{width:100%;height:50px;background:#fff;color:#000;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:12px;letter-spacing:.04em}
-#perm-search-btn{width:100%;height:50px;background:rgba(255,255,255,.07);color:#fff;border:1px solid var(--border);border-radius:12px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.04em}
+#perm-overlay{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:28px}
+#perm-card{max-width:320px;width:100%;background:rgba(12,12,12,.95);border:1px solid rgba(255,255,255,.07);border-radius:28px;padding:36px 28px 32px;text-align:center}
+#perm-logo{font-size:11px;font-weight:800;letter-spacing:.5em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:28px}
+#perm-card h2{font-size:18px;font-weight:700;letter-spacing:.01em;margin-bottom:10px;color:rgba(255,255,255,.9)}
+#perm-card p{font-size:13px;line-height:1.7;color:rgba(255,255,255,.35);margin-bottom:28px;font-weight:400}
+#perm-allow-btn{width:100%;height:46px;background:#fff;color:#000;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s ease}
+#perm-allow-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* INLINE SEARCH FALLBACK */
+#perm-fallback{margin-top:20px;display:none;}
+#perm-fallback-label{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.25);margin-bottom:10px;}
+#perm-fallback-input{width:100%;height:42px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;padding:0 14px;outline:none;transition:border .2s ease;}
+#perm-fallback-input::placeholder{color:rgba(255,255,255,.2);}
+#perm-fallback-input:focus{border-color:rgba(255,255,255,.2);}
+#perm-fallback-results{margin-top:6px;background:rgba(10,10,10,.98);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;display:none;}
+.perm-result-item{padding:12px 14px;font-size:12px;color:rgba(255,255,255,.6);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);text-align:left;transition:background .2s;}
+.perm-result-item:last-child{border-bottom:none;}
+.perm-result-item:active{background:rgba(255,255,255,.05);}
+
+/* LOADING SPINNER */
+.loader{width:16px;height:16px;border:2px solid #000;border-bottom-color:transparent;border-radius:50%;display:none;animation:rotation 1s linear infinite}
+@keyframes rotation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+#perm-allow-btn.loading .loader{display:inline-block}
+#perm-allow-btn.loading .btn-text{display:none}
 
 /* GHOST MARKERS (Glowing Dots) */
 .ghost-outer{background:transparent;border:none}
@@ -168,12 +186,21 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 <div id="fog"></div>
 <div id="pts"></div>
 
-<div id="perm-overlay">
+
+<div id="perm-overlay" style="display:none">
   <div id="perm-card">
-    <h2>NEELI</h2>
-    <p>This platform requires your location to surface paranormal folklore from your region. No data is shared or stored.</p>
-    <button id="perm-allow-btn">Allow Location Access</button>
-    <button id="perm-search-btn">Search a Location Instead</button>
+    <div id="perm-logo">NEELI</div>
+    <h2>Enable Location</h2>
+    <p>Paranormal intelligence is calibrated to your region. Grant access to begin.</p>
+    <button id="perm-allow-btn">
+      <span class="loader"></span>
+      <span class="btn-text">Allow Location Access</span>
+    </button>
+    <div id="perm-fallback">
+      <div id="perm-fallback-label">Search a location instead</div>
+      <input id="perm-fallback-input" type="text" placeholder="City, town or village…" autocomplete="off">
+      <div id="perm-fallback-results"></div>
+    </div>
   </div>
 </div>
 
@@ -259,6 +286,13 @@ for(var i=0;i<18;i++){var p=document.createElement('div');p.className='pt';p.sty
 // ── MAP INIT ───────────────────────────────────────────────
 var map=L.map('map',{zoomControl:false,attributionControl:false,zoomSnap:.5}).setView([10.5,76.2],14);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:20}).addTo(map);
+
+var pulseIcon = L.divIcon({
+  className: 'ulm',
+  html: '<div class="dot-p"></div><div class="dot-c"></div>',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10]
+});
 
 var userMarker=null;
 var currentLatLng=null;
@@ -638,18 +672,102 @@ function initMap(latlng){
 
 // ── LOCATION ───────────────────────────────────────────────
 function startLocate(){
-  document.getElementById('perm-overlay').style.display='none';
-  map.on('locationfound',function(e){
-    currentLatLng=e.latlng;
-    if(!userMarker){userMarker=L.marker(e.latlng,{icon:pulseIcon}).addTo(map);}
-    else{userMarker.setLatLng(e.latlng);}
-    map.setView(e.latlng,15);
-    initMap(e.latlng);
+  var btn = document.getElementById('perm-allow-btn');
+  if(btn){ btn.classList.add('loading'); btn.disabled = true; }
+
+  if(!navigator.geolocation) {
+    showPermOverlay(true);
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
+      document.getElementById('perm-overlay').style.display = 'none';
+
+      var ll = L.latLng(pos.coords.latitude, pos.coords.longitude);
+      currentLatLng = ll;
+
+      if(!userMarker){
+        userMarker = L.marker(ll, {icon:pulseIcon}).addTo(map);
+      } else {
+        userMarker.setLatLng(ll);
+      }
+
+      map.flyTo(ll, 15, {duration: 2, easeLinearity: 0.25});
+      initMap(ll);
+
+      map.locate({watch:true, enableHighAccuracy:true});
+      map.on('locationfound', function(e){
+        currentLatLng = e.latlng;
+        if(userMarker) userMarker.setLatLng(e.latlng);
+      });
+    },
+    function(err){
+      if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
+      // Show the fallback search inline — no separate error popup
+      showPermOverlay(true);
+    },
+    {timeout: 10000, enableHighAccuracy: true}
+  );
+}
+
+function showPermOverlay(showFallback){
+  var overlay = document.getElementById('perm-overlay');
+  overlay.style.display = 'flex';
+  if(showFallback){
+    var fallback = document.getElementById('perm-fallback');
+    if(fallback) fallback.style.display = 'block';
+    var input = document.getElementById('perm-fallback-input');
+    if(input) setTimeout(function(){ input.focus(); }, 300);
+  }
+}
+
+// ── INLINE FALLBACK SEARCH ─────────────────────────────────
+(function(){
+  var fbInput = document.getElementById('perm-fallback-input');
+  var fbResults = document.getElementById('perm-fallback-results');
+  if(!fbInput) return;
+  var fbTimer = null;
+  fbInput.addEventListener('input', function(){
+    clearTimeout(fbTimer);
+    var q = fbInput.value.trim();
+    if(q.length < 3){ fbResults.style.display='none'; return; }
+    fbTimer = setTimeout(function(){
+      fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=4')
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        fbResults.innerHTML = '';
+        if(!data.length){ fbResults.style.display='none'; return; }
+        data.forEach(function(item){
+          var d = document.createElement('div');
+          d.className = 'perm-result-item';
+          d.textContent = item.display_name;
+          d.addEventListener('click', function(){
+            document.getElementById('perm-overlay').style.display = 'none';
+            var ll = L.latLng(parseFloat(item.lat), parseFloat(item.lon));
+            currentLatLng = ll;
+            mapInitDone = false;
+            spawnedGhosts.forEach(function(g){ if(map.hasLayer(g.marker)) map.removeLayer(g.marker); });
+            spawnedGhosts = [];
+            map.flyTo(ll, 14, {duration: 1.5});
+            setTimeout(function(){ initMap(ll); }, 1800);
+          });
+          fbResults.appendChild(d);
+        });
+        fbResults.style.display = 'block';
+      }).catch(function(){});
+    }, 400);
   });
-  map.on('locationerror',function(){
-    document.getElementById('perm-overlay').style.display='flex';
-  });
-  map.locate({watch:true,enableHighAccuracy:true,maxZoom:15,timeout:10000});
+})();
+
+function retryLocation(){
+  document.getElementById('perm-fallback').style.display = 'none';
+  startLocate();
+}
+
+function openManualSearch(){
+  showPermOverlay(true);
 }
 
 // ── SEARCH ─────────────────────────────────────────────────
@@ -690,14 +808,9 @@ searchInput.addEventListener('input',function(){
 });
 document.addEventListener('click',function(e){if(!e.target.closest('#search-wrap'))searchResults.style.display='none';});
 
-// ── PERMISSION BUTTONS ─────────────────────────────────────
-document.getElementById('perm-allow-btn').addEventListener('click',startLocate);
-document.getElementById('perm-search-btn').addEventListener('click',function(){
-  document.getElementById('perm-overlay').style.display='none';
-  searchInput.focus();
-  var fallback=L.latLng(10.5,76.2);
-  map.setView(fallback,13);
-});
+// ── PERMISSION BUTTON ──────────────────────────────────────
+document.getElementById('perm-allow-btn').addEventListener('click', startLocate);
+
 
 // ── REFRESH BUTTON ─────────────────────────────────────────
 document.getElementById('refresh-btn').addEventListener('click',function(){
@@ -705,19 +818,13 @@ document.getElementById('refresh-btn').addEventListener('click',function(){
 });
 
 // ── AUTO-START ─────────────────────────────────────────────
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      startLocate();
-    },
-    function(){
-      document.getElementById('perm-overlay').style.display='flex';
-    },
-    {timeout:5000}
-  );
-} else {
-  document.getElementById('perm-overlay').style.display='flex';
-}
+startLocate();
+
+window.startLocate = startLocate;
+window.retryLocation = retryLocation;
+window.openManualSearch = openManualSearch;
+window.toggleArchive = toggleArchive;
+window.closeDetail = closeDetail;
 
 })();
 </script>
