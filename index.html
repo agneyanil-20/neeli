@@ -1,4 +1,3 @@
-<!-- NEELI v1.1 - updated 2026-05-07 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +14,7 @@
     
     <style>
         :root {
-            --bg-color: #080808;
+            --bg-color: #030303;
             --accent-color: #ffffff;
             --glow-color: rgba(255, 255, 255, 0.6);
         }
@@ -44,6 +43,13 @@
             top: 0;
             left: 0;
             z-index: 1;
+            /* Make map slightly darker to fit the aesthetic */
+            filter: brightness(0.85) contrast(1.2) saturate(0.8);
+            transition: filter 2s ease;
+        }
+        
+        #map.midnight {
+            filter: brightness(0.6) contrast(1.3) saturate(0.7);
         }
 
         /* Hide Leaflet Controls */
@@ -52,13 +58,61 @@
             display: none !important;
         }
 
+        /* ATMOSPHERIC EFFECTS */
+        #fog-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png') repeat-x;
+            background-size: 100% 100%;
+            opacity: 0.15;
+            z-index: 2;
+            pointer-events: none;
+            animation: fogAnim 60s linear infinite;
+        }
+
+        @keyframes fogAnim {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50%, -10%); }
+        }
+
+        #particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+
         /* LIQUID GLASS SYSTEM */
         .liquid-glass {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
             border-radius: 20px;
         }
 
@@ -81,27 +135,82 @@
         }
 
         .top-title {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.3em;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.4em;
             text-transform: uppercase;
         }
 
         .top-score {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 800;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* STATUS BANNER */
+        #status-banner {
+            position: fixed;
+            top: calc(56px + env(safe-area-inset-top) + 12px);
+            left: 16px;
+            right: 16px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 1000;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.05em;
+            transition: all 0.5s ease;
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; transform: scale(1.01); }
+        }
+
+        .status-day {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ddd;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        .status-evening {
+            background: rgba(41, 128, 185, 0.2);
+            color: #85c1e9;
+            border: 1px solid rgba(41, 128, 185, 0.3);
+            box-shadow: 0 0 25px rgba(41, 128, 185, 0.2);
+        }
+
+        .status-midnight {
+            background: rgba(192, 57, 43, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(192, 57, 43, 0.4);
+            box-shadow: 0 0 30px rgba(192, 57, 43, 0.3);
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .status-late {
+            background: rgba(243, 156, 18, 0.15);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            box-shadow: 0 0 25px rgba(243, 156, 18, 0.2);
         }
 
         /* FILTER ROW */
         #filter-row {
             position: fixed;
-            top: calc(56px + env(safe-area-inset-top) + 12px);
+            top: calc(56px + env(safe-area-inset-top) + 68px);
             left: 0;
             width: 100%;
             padding: 0 16px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             overflow-x: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
@@ -113,18 +222,20 @@
         }
 
         .chip {
-            height: 32px;
-            padding: 0 16px;
+            height: 34px;
+            padding: 0 18px;
             border-radius: 999px;
-            font-size: 14px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.05em;
             white-space: nowrap;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .chip.active {
@@ -133,36 +244,8 @@
             backdrop-filter: none;
             -webkit-backdrop-filter: none;
             border: none;
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-        }
-
-        /* PEAK TIME PILL */
-        #time-pill {
-            position: fixed;
-            top: calc(56px + env(safe-area-inset-top) + 56px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 6px 16px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            z-index: 1000;
-            white-space: nowrap;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        #time-pill.night {
-            color: #4ade80;
-            box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
-            border-color: rgba(74, 222, 128, 0.3);
-        }
-
-        #time-pill.day {
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
         }
 
         /* BOTTOM BAR */
@@ -171,8 +254,8 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: calc(56px + env(safe-area-inset-bottom));
-            padding: 0 20px env(safe-area-inset-bottom) 20px;
+            height: calc(64px + env(safe-area-inset-bottom));
+            padding: 0 24px env(safe-area-inset-bottom) 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -184,9 +267,11 @@
         }
 
         .bottom-stat {
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.5);
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .bottom-stat span {
@@ -196,13 +281,19 @@
         .last-caught-container {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .rarity-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
+            animation: dotPulse 2s infinite;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.6; }
         }
 
         /* BOTTOM SHEET */
@@ -211,18 +302,18 @@
             bottom: -100%;
             left: 0;
             width: 100%;
-            background: rgba(10, 10, 10, 0.7);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px 24px 0 0;
-            padding: 28px 24px calc(28px + env(safe-area-inset-bottom));
+            background: rgba(5, 5, 5, 0.75);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px 32px 0 0;
+            padding: 32px 24px calc(32px + env(safe-area-inset-bottom));
             z-index: 2000;
-            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: bottom 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
         }
 
         #bottom-sheet.active {
@@ -230,108 +321,146 @@
         }
 
         #sheet-emoji {
-            font-size: 48px;
-            margin-bottom: 8px;
+            font-size: 56px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            animation: floatUpDown 3s ease-in-out infinite;
         }
 
         #sheet-name {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-align: center;
+            letter-spacing: 0.02em;
         }
 
         #sheet-rarity {
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.25em;
             font-weight: 800;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         #sheet-points {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.5);
             font-weight: 700;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
 
         #catch-btn {
             width: 100%;
-            height: 52px;
+            height: 56px;
             background-color: #fff;
             color: #000;
             border: none;
-            border-radius: 14px;
+            border-radius: 16px;
             font-family: 'Syne', sans-serif;
             font-weight: 800;
             font-size: 16px;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
         #catch-btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+            transform: scale(0.96);
+            background-color: #eee;
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
         }
 
         /* GHOST MARKERS */
         .ghost-marker {
             width: 48px;
             height: 48px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 22px;
-            animation: floatUpDown 2.5s ease-in-out infinite;
+            animation: floatUpDown 3s ease-in-out infinite, pulseAura 4s ease-in-out infinite;
         }
 
         .ghost-marker.daytime {
-            opacity: 0.5;
+            opacity: 0.4;
+            filter: grayscale(0.5);
         }
 
         @keyframes floatUpDown {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes pulseAura {
+            0%, 100% { box-shadow: 0 0 10px var(--marker-glow); }
+            50% { box-shadow: 0 0 25px var(--marker-glow); }
+        }
+
+        /* GRAVEYARD MARKERS */
+        .graveyard-marker {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #aaa;
+            box-shadow: 0 0 20px rgba(100, 100, 100, 0.3);
+            animation: floatUpDown 4s ease-in-out infinite reverse;
+        }
+
+        /* DANGER ZONES SVG STYLES */
+        .danger-zone-path {
+            animation: zonePulse 5s ease-in-out infinite;
+        }
+
+        @keyframes zonePulse {
+            0%, 100% { opacity: 0.15; transform: scale(1); }
+            50% { opacity: 0.25; transform: scale(1.05); }
         }
 
         /* RARITY COLORS & EFFECTS */
-        .rarity-common { border: 1.5px solid rgba(68, 68, 68, 0.7); }
-        .rarity-uncommon { border: 1.5px solid rgba(46, 204, 113, 0.7); }
-        .rarity-rare { border: 1.5px solid rgba(52, 152, 219, 0.7); }
-        .rarity-epic { border: 1.5px solid rgba(155, 89, 182, 0.7); }
+        .rarity-common { border: 1.5px solid rgba(150, 150, 150, 0.5); --marker-glow: rgba(150, 150, 150, 0.2); }
+        .rarity-uncommon { border: 1.5px solid rgba(46, 204, 113, 0.6); --marker-glow: rgba(46, 204, 113, 0.3); }
+        .rarity-rare { border: 1.5px solid rgba(52, 152, 219, 0.7); --marker-glow: rgba(52, 152, 219, 0.4); }
+        .rarity-epic { border: 1.5px solid rgba(155, 89, 182, 0.8); --marker-glow: rgba(155, 89, 182, 0.5); }
         .rarity-legendary { 
-            border: 1.5px solid rgba(243, 156, 18, 0.7); 
-            width: 54px;
-            height: 54px;
-            margin-left: -3px; /* compensate for size increase from 48px */
-            margin-top: -3px;
-            box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+            border: 2px solid rgba(243, 156, 18, 0.9); 
+            --marker-glow: rgba(243, 156, 18, 0.6);
+            width: 56px;
+            height: 56px;
+            margin-left: -4px;
+            margin-top: -4px;
         }
         .rarity-mythic { 
-            border: 1.5px solid rgba(231, 76, 60, 0.7); 
-            animation: floatUpDown 2.5s ease-in-out infinite, mythicPulse 2s infinite;
-        }
-
-        @keyframes mythicPulse {
-            0%, 100% { box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); }
-            50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.9); }
+            border: 2px solid rgba(231, 76, 60, 1); 
+            --marker-glow: rgba(231, 76, 60, 0.8);
+            animation: floatUpDown 2s ease-in-out infinite, pulseAura 1.5s infinite;
+            width: 56px;
+            height: 56px;
+            margin-left: -4px;
+            margin-top: -4px;
         }
 
         /* TEXT COLORS */
-        .color-common { color: #888; }
+        .color-common { color: #aaa; }
         .color-uncommon { color: #2ecc71; }
         .color-rare { color: #3498db; }
         .color-epic { color: #9b59b6; }
-        .color-legendary { color: #f39c12; }
-        .color-mythic { color: #e74c3c; text-shadow: 0 0 8px #e74c3c; }
+        .color-legendary { color: #f39c12; text-shadow: 0 0 10px rgba(243,156,18,0.5); }
+        .color-mythic { color: #e74c3c; text-shadow: 0 0 15px rgba(231,76,60,0.8); }
 
-        .bg-common { background-color: #888; }
+        .bg-common { background-color: #aaa; }
         .bg-uncommon { background-color: #2ecc71; }
         .bg-rare { background-color: #3498db; }
         .bg-epic { background-color: #9b59b6; }
@@ -346,50 +475,52 @@
         }
 
         .dot-core {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             background: var(--accent-color);
             border-radius: 50%;
-            box-shadow: 0 0 15px var(--glow-color);
+            box-shadow: 0 0 20px var(--glow-color);
             z-index: 2;
         }
 
         .dot-pulse {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             background: var(--accent-color);
             border-radius: 50%;
-            animation: pulse 2s ease-out infinite;
+            animation: pulse 2.5s cubic-bezier(0.19, 1, 0.22, 1) infinite;
             z-index: 1;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(4); opacity: 0; }
+            0% { transform: scale(1); opacity: 0.9; }
+            100% { transform: scale(5); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
     <div id="map"></div>
+    <div id="fog-overlay"></div>
+    <div id="particles-container"></div>
 
     <div id="top-bar" class="liquid-glass">
         <div class="top-title">HAUNT</div>
         <div class="top-score" id="score-display">0</div>
     </div>
 
-    <div id="filter-row">
-        <div class="chip liquid-glass active" data-filter="All">All</div>
-        <div class="chip liquid-glass" data-filter="common">Common</div>
-        <div class="chip liquid-glass" data-filter="uncommon">Uncommon</div>
-        <div class="chip liquid-glass" data-filter="rare">Rare</div>
-        <div class="chip liquid-glass" data-filter="epic">Epic</div>
-        <div class="chip liquid-glass" data-filter="legendary">Legendary</div>
-        <div class="chip liquid-glass" data-filter="mythic">Mythic</div>
-    </div>
+    <div id="status-banner" class="liquid-glass"></div>
 
-    <div id="time-pill"></div>
+    <div id="filter-row">
+        <div class="chip liquid-glass active" data-filter="All Spirits">All Spirits</div>
+        <div class="chip liquid-glass" data-filter="Neeli">Neeli</div>
+        <div class="chip liquid-glass" data-filter="Yakshi">Yakshi</div>
+        <div class="chip liquid-glass" data-filter="Odiyan">Odiyan</div>
+        <div class="chip liquid-glass" data-filter="Chathan">Chathan</div>
+        <div class="chip liquid-glass" data-filter="Ritual">Ritual</div>
+        <div class="chip liquid-glass" data-filter="Forest">Forest</div>
+    </div>
 
     <div id="bottom-bar" class="liquid-glass">
         <div class="bottom-stat"><span id="ghost-count">0</span> ghosts nearby</div>
@@ -412,11 +543,24 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Setup Particles
+            const particlesContainer = document.getElementById('particles-container');
+            for(let i=0; i<30; i++) {
+                let p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = Math.random() * 100 + 'vh';
+                p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                p.style.animationDelay = (Math.random() * 5) + 's';
+                particlesContainer.appendChild(p);
+            }
+
             // Setup Map
             const map = L.map('map', {
                 zoomControl: false,
-                attributionControl: false
-            }).setView([0, 0], 17);
+                attributionControl: false,
+                zoomSnap: 0.5
+            }).setView([0, 0], 16.5);
 
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                 maxZoom: 20
@@ -426,36 +570,31 @@
             const pulsingIcon = L.divIcon({
                 className: 'user-location-marker',
                 html: '<div class="dot-pulse"></div><div class="dot-core"></div>',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
             });
 
-            // Ghost Data
+            // Ghost Data with Categories
             const ghostsList = [
-                { name: 'Pretham', rarity: 'common', points: 10, emoji: '🕯️' },
-                { name: 'Pishachu', rarity: 'common', points: 10, emoji: '👁️' },
-                { name: 'Marutha', rarity: 'common', points: 15, emoji: '💨' },
-                { name: 'Maadan', rarity: 'common', points: 15, emoji: '🌑' },
-                { name: 'Parakutty', rarity: 'uncommon', points: 25, emoji: '🌿' },
-                { name: 'Neeli', rarity: 'uncommon', points: 25, emoji: '💧' },
-                { name: 'Karinkali', rarity: 'rare', points: 50, emoji: '🖤' },
-                { name: 'Gulikan', rarity: 'rare', points: 50, emoji: '⛓️' },
-                { name: 'Kutti Chathan', rarity: 'epic', points: 100, emoji: '🔥' },
-                { name: 'Chudala', rarity: 'epic', points: 100, emoji: '🌙' },
-                { name: 'Yakshi', rarity: 'legendary', points: 200, emoji: '🌸' },
-                { name: 'Odiyan', rarity: 'legendary', points: 200, emoji: '🐺' },
-                { name: 'Kalliyankattu Neeli', rarity: 'legendary', points: 300, emoji: '👁️' },
-                { name: 'Madan Thampuran', rarity: 'mythic', points: 500, emoji: '👑' },
-                { name: 'Brahmarakshas', rarity: 'mythic', points: 1000, emoji: '☠️' }
+                { name: 'Pretham', type: 'Ritual', rarity: 'common', points: 10, emoji: '🕯️' },
+                { name: 'Pishachu', type: 'Ritual', rarity: 'common', points: 10, emoji: '👁️' },
+                { name: 'Marutha', type: 'Forest', rarity: 'common', points: 15, emoji: '💨' },
+                { name: 'Maadan', type: 'Forest', rarity: 'common', points: 15, emoji: '🌑' },
+                { name: 'Parakutty', type: 'Chathan', rarity: 'uncommon', points: 25, emoji: '🌿' },
+                { name: 'Neeli', type: 'Neeli', rarity: 'uncommon', points: 25, emoji: '💧' },
+                { name: 'Karinkali', type: 'Ritual', rarity: 'rare', points: 50, emoji: '🖤' },
+                { name: 'Gulikan', type: 'Ritual', rarity: 'rare', points: 50, emoji: '⛓️' },
+                { name: 'Kutti Chathan', type: 'Chathan', rarity: 'epic', points: 100, emoji: '🔥' },
+                { name: 'Chudala', type: 'Ritual', rarity: 'epic', points: 100, emoji: '🌙' },
+                { name: 'Yakshi', type: 'Yakshi', rarity: 'legendary', points: 200, emoji: '🌸' },
+                { name: 'Odiyan', type: 'Odiyan', rarity: 'legendary', points: 200, emoji: '🐺' },
+                { name: 'Kalliyankattu Neeli', type: 'Neeli', rarity: 'legendary', points: 300, emoji: '👁️' },
+                { name: 'Madan Thampuran', type: 'Forest', rarity: 'mythic', points: 500, emoji: '👑' },
+                { name: 'Brahmarakshas', type: 'Ritual', rarity: 'mythic', points: 1000, emoji: '☠️' }
             ];
 
             const spawnWeights = {
-                'common': 40,
-                'uncommon': 25,
-                'rare': 18,
-                'epic': 10,
-                'legendary': 5,
-                'mythic': 2
+                'common': 40, 'uncommon': 25, 'rare': 18, 'epic': 10, 'legendary': 5, 'mythic': 2
             };
 
             // Global State
@@ -463,22 +602,38 @@
             let currentLatLng = null;
             let activeGhostData = null;
             let activeGhostMarker = null;
-            let activeFilter = 'All';
+            let activeFilter = 'All Spirits';
             const spawnedGhosts = []; 
+            let graveyards = [];
 
-            // Day/Night Logic
+            // Dynamic Time Logic
             const hour = new Date().getHours();
-            const isNight = hour >= 18 || hour < 6;
-            const maxGhosts = isNight ? 7 : 2;
-            const spawnIntervalMs = isNight ? 25000 : 90000;
+            let isNight = false;
+            let maxGhosts = 2;
+            let spawnIntervalMs = 90000;
+            const statusBanner = document.getElementById('status-banner');
 
-            const timePill = document.getElementById('time-pill');
-            if (isNight) {
-                timePill.innerText = "🌙 Peak Hours — Ghosts are active";
-                timePill.className = "night";
+            if (hour >= 6 && hour < 18) {
+                // Day
+                statusBanner.innerText = "☀️ Ghosts are resting";
+                statusBanner.className = "status-day liquid-glass";
+            } else if (hour >= 18 && hour < 24) {
+                // Evening
+                isNight = true; maxGhosts = 7; spawnIntervalMs = 25000;
+                statusBanner.innerText = "🌙 Haunting Window: 6:00 PM — Midnight";
+                statusBanner.className = "status-evening liquid-glass";
+            } else if (hour >= 0 && hour < 3) {
+                // Midnight
+                isNight = true; maxGhosts = 10; spawnIntervalMs = 15000;
+                statusBanner.innerText = "⚠️ Paranormal activity rising after midnight";
+                statusBanner.className = "status-midnight liquid-glass";
+                document.getElementById('map').classList.add('midnight');
             } else {
-                timePill.innerText = "☀️ Return at night — Ghosts are resting";
-                timePill.className = "day";
+                // Late Night (3 AM - 6 AM)
+                isNight = true; maxGhosts = 8; spawnIntervalMs = 20000;
+                statusBanner.innerText = "🕯️ Mythic sightings increase between 3AM–6AM";
+                statusBanner.className = "status-late liquid-glass";
+                document.getElementById('map').classList.add('midnight');
             }
 
             // DOM Elements
@@ -508,16 +663,12 @@
             function updateGhostVisibility() {
                 let visibleCount = 0;
                 spawnedGhosts.forEach(g => {
-                    const shouldShow = activeFilter === 'All' || g.data.rarity === activeFilter;
+                    const shouldShow = activeFilter === 'All Spirits' || g.data.type === activeFilter;
                     if (shouldShow) {
-                        if (!map.hasLayer(g.marker)) {
-                            map.addLayer(g.marker);
-                        }
+                        if (!map.hasLayer(g.marker)) map.addLayer(g.marker);
                         visibleCount++;
                     } else {
-                        if (map.hasLayer(g.marker)) {
-                            map.removeLayer(g.marker);
-                        }
+                        if (map.hasLayer(g.marker)) map.removeLayer(g.marker);
                     }
                 });
                 ghostCountDisplay.innerText = visibleCount;
@@ -535,7 +686,6 @@
                     
                     map.removeLayer(activeGhostMarker);
                     
-                    // Remove from tracking array
                     const idx = spawnedGhosts.findIndex(g => g.marker === activeGhostMarker);
                     if (idx > -1) spawnedGhosts.splice(idx, 1);
                     
@@ -547,9 +697,7 @@
                 }
             });
 
-            map.on('click', () => {
-                bottomSheet.classList.remove('active');
-            });
+            map.on('click', () => bottomSheet.classList.remove('active'));
 
             // Spawning Logic
             function getRandomGhost() {
@@ -569,7 +717,6 @@
 
             function getRandomLatLngAnnulus(center, minRadius, maxRadius) {
                 const R = 6378137;
-                // Bias towards outer edge using sqrt curve
                 const r = Math.sqrt(Math.random() * (Math.pow(maxRadius, 2) - Math.pow(minRadius, 2)) + Math.pow(minRadius, 2));
                 const theta = Math.random() * 2 * Math.PI;
                 const dLat = r * Math.cos(theta);
@@ -583,29 +730,25 @@
                 if (spawnedGhosts.length >= maxGhosts) return;
 
                 const ghost = getRandomGhost();
-                // Spawn 200m - 800m away
-                const location = getRandomLatLngAnnulus(centerLatLng, 200, 800);
+                let location = getRandomLatLngAnnulus(centerLatLng, 200, 800);
+                
+                // Graveyard Biasing for Legendary/Mythic at Night
+                if (isNight && (ghost.rarity === 'legendary' || ghost.rarity === 'mythic') && graveyards.length > 0) {
+                    if (Math.random() > 0.5) {
+                        // 50% chance to spawn exactly at a graveyard
+                        const grave = graveyards[Math.floor(Math.random() * graveyards.length)];
+                        location = getRandomLatLngAnnulus(L.latLng(grave.lat, grave.lon), 0, 50);
+                    }
+                }
                 
                 const daytimeClass = isNight ? '' : 'daytime';
-                const anchorSize = ghost.rarity === 'legendary' ? 27 : 24;
-                const iconSize = ghost.rarity === 'legendary' ? 54 : 48;
-
                 const ghostIcon = L.divIcon({
                     className: `ghost-marker rarity-${ghost.rarity} ${daytimeClass}`,
-                    html: ghost.emoji,
-                    iconSize: [iconSize, iconSize],
-                    iconAnchor: [anchorSize, anchorSize]
+                    html: ghost.emoji
                 });
 
                 const marker = L.marker(location, { icon: ghostIcon });
-                
-                // Track ghost state
-                spawnedGhosts.push({
-                    marker: marker,
-                    data: ghost
-                });
-
-                // Respect current filter
+                spawnedGhosts.push({ marker: marker, data: ghost });
                 updateGhostVisibility();
 
                 marker.on('click', (e) => {
@@ -615,7 +758,7 @@
                     
                     sheetEmoji.innerText = ghost.emoji;
                     sheetName.innerText = ghost.name;
-                    sheetRarity.innerText = ghost.rarity;
+                    sheetRarity.innerText = `${ghost.type} SPIRIT • ${ghost.rarity}`;
                     sheetRarity.className = `color-${ghost.rarity}`;
                     sheetPoints.innerText = `+${ghost.points} PTS`;
                     
@@ -623,20 +766,78 @@
                 });
             }
 
-            let initialSpawnDone = false;
+            // Atmosphere Systems
+            function generateDangerZones(center) {
+                const zoneTypes = [
+                    { color: '#2ecc71', type: 'green' }, // Safe
+                    { color: '#f1c40f', type: 'yellow' }, // Moderate
+                    { color: '#e74c3c', type: 'red' } // Danger
+                ];
+                
+                const numZones = Math.floor(Math.random() * 3) + 3; // 3 to 5 zones
+                for(let i=0; i<numZones; i++) {
+                    const zoneDef = zoneTypes[Math.floor(Math.random() * zoneTypes.length)];
+                    const loc = getRandomLatLngAnnulus(center, 300, 1500);
+                    const radius = Math.random() * 400 + 200; // 200m to 600m
+                    
+                    L.circle(loc, {
+                        color: 'transparent',
+                        fillColor: zoneDef.color,
+                        fillOpacity: 0.15,
+                        radius: radius,
+                        className: 'danger-zone-path'
+                    }).addTo(map);
+                }
+            }
 
-            function startSpawning(centerLatLng) {
-                if (initialSpawnDone) return;
-                initialSpawnDone = true;
+            function fetchGraveyards(lat, lon) {
+                const query = `
+                    [out:json];
+                    nwr["landuse"="cemetery"](around:2000,${lat},${lon});
+                    out center;
+                `;
+                fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    body: query
+                })
+                .then(response => response.json())
+                .then(data => {
+                    graveyards = data.elements.map(el => {
+                        return {
+                            lat: el.lat || el.center.lat,
+                            lon: el.lon || el.center.lon
+                        }
+                    }).filter(g => g.lat && g.lon);
+                    
+                    const graveIcon = L.divIcon({
+                        className: 'graveyard-marker',
+                        html: '🪦',
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18]
+                    });
+                    
+                    graveyards.forEach(g => {
+                        L.marker([g.lat, g.lon], { icon: graveIcon, interactive: false }).addTo(map);
+                    });
+                })
+                .catch(err => console.log('OSM Graveyard fetch failed silently.', err));
+            }
+
+            let mapInitialized = false;
+
+            function initGameplay(centerLatLng) {
+                if (mapInitialized) return;
+                mapInitialized = true;
+                
+                generateDangerZones(centerLatLng);
+                fetchGraveyards(centerLatLng.lat, centerLatLng.lng);
 
                 for (let i = 0; i < maxGhosts; i++) {
                     spawnSingleGhost(centerLatLng);
                 }
 
                 setInterval(() => {
-                    if (currentLatLng) {
-                        spawnSingleGhost(currentLatLng);
-                    }
+                    if (currentLatLng) spawnSingleGhost(currentLatLng);
                 }, spawnIntervalMs);
             }
 
@@ -648,17 +849,21 @@
                 } else {
                     userMarker.setLatLng(e.latlng);
                 }
-                map.setView(e.latlng, 17);
-                startSpawning(e.latlng);
+                map.setView(e.latlng, 16.5);
+                initGameplay(e.latlng);
             }
 
             function onLocationError(e) {
                 console.error("Location access error:", e.message);
+                // Fallback for demo purposes if location fails
+                const fallback = L.latLng(8.5241, 76.9366); // Trivandrum
+                map.setView(fallback, 16.5);
+                initGameplay(fallback);
             }
 
             map.on('locationfound', onLocationFound);
             map.on('locationerror', onLocationError);
-            map.locate({ setView: true, maxZoom: 17, watch: true, enableHighAccuracy: true });
+            map.locate({ setView: true, maxZoom: 16.5, watch: true, enableHighAccuracy: true });
         });
     </script>
 </body>
