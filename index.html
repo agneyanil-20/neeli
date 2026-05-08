@@ -1,1210 +1,859 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-<title>NEELI — Folklore Explorer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<style>
-:root{--bg:#050505;--txt:rgba(255,255,255,.88);--txt2:rgba(255,255,255,.45);--glass:rgba(12,12,12,.55);--border:rgba(255,255,255,.06)}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Syne',sans-serif;color:var(--txt)}
-#map{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:1;background:var(--bg);opacity:1;visibility:visible;}
-.leaflet-container{background:var(--bg)!important}
-.leaflet-control-zoom,.leaflet-control-attribution{display:none!important}
-.glass{background:rgba(10,10,10,0.95);border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.5)}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>HAUNT</title>
+    <!-- Syne Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        :root {
+            --bg-color: #050505;
+            --accent-color: #ffffff;
+            --glow-color: rgba(255, 255, 255, 0.6);
+        }
 
-/* TOP BAR */
-#top-bar{position:fixed;top:0;left:0;width:100%;height:calc(56px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 16px 0;display:flex;align-items:center;gap:12px;border-radius:0;border:none;border-bottom:1px solid var(--border);z-index:1001}
-#top-title{font-size:13px;font-weight:800;letter-spacing:.55em;text-transform:uppercase;opacity:.9;white-space:nowrap}
-#search-wrap{flex:1;position:relative}
-#search-input{width:100%;height:36px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;padding:0 12px 0 34px;outline:none}
-#search-input::placeholder{color:var(--txt2)}
-#search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.4;pointer-events:none}
-#search-results{position:absolute;top:42px;left:0;right:0;background:rgba(10,10,10,.95);border:1px solid var(--border);border-radius:10px;z-index:2000;overflow:hidden;display:none}
-.search-result-item{padding:12px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border)}
-.search-result-item:last-child{border-bottom:none}
-.search-result-item:active{background:rgba(255,255,255,.05)}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* STATUS BANNER */
-#status-banner{position:fixed;top:calc(56px + env(safe-area-inset-top) + 10px);left:14px;right:14px;padding:10px 16px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-align:center;z-index:1000;transition:all 1s ease}
-.s-day{color:rgba(255,255,255,.5)}
-.s-eve{color:#7fb3d3;box-shadow:0 0 18px rgba(41,128,185,.12)}
-.s-mid{color:#c0392b;box-shadow:0 0 18px rgba(192,57,43,.18)}
-.s-late{color:#d4a017;box-shadow:0 0 18px rgba(212,160,23,.15)}
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Syne', sans-serif;
+            color: #fff;
+        }
 
-/* FILTER ROW */
-#filter-row{position:fixed;top:calc(56px + env(safe-area-inset-top) + 62px);left:0;width:100%;padding:0 14px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;z-index:1000}
-#filter-row::-webkit-scrollbar{display:none}
-.chip{
-  height:32px;padding:0 16px;border-radius:999px;font-size:11px;font-weight:700;color:var(--txt2);
-  white-space:nowrap;display:flex;align-items:center;gap:8px;cursor:pointer;
-  background:rgba(18,18,18,0.7);border:1px solid var(--border);
-  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);letter-spacing:0.06em;text-transform:uppercase;
-}
-.chip::before{
-  content:'';width:6px;height:6px;border-radius:50%;
-  background:var(--dot-c, #8e9aaf);
-  box-shadow:0 0 8px var(--dot-c, #8e9aaf);
-  opacity:0.6;transition:all 0.3s ease;
-}
-.chip.active{
-  background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);
-  box-shadow:0 0 20px rgba(255,255,255,0.05);
-}
-.chip.active::before{opacity:1;transform:scale(1.2);box-shadow:0 0 12px var(--dot-c, #8e9aaf);}
+        #map {
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
 
-/* Category Dot Colors */
-.chip[data-filter="Yakshi"]{--dot-c:#B84A62;}
-.chip[data-filter="Odiyan"]{--dot-c:#A96A32;}
-.chip[data-filter="Neeli"]{--dot-c:#4A78B8;}
-.chip[data-filter="Gulikan"]{--dot-c:#5C5C66;}
-.chip[data-filter="Karinkali"]{--dot-c:#4B3A5A;}
-.chip[data-filter="Kutti Chathan"]{--dot-c:#8A2E24;}
-.chip[data-filter="Chudala"]{--dot-c:#4B4F7A;}
-.chip[data-filter="Brahmarakshas"]{--dot-c:#701C1C;}
-.chip[data-filter="Madan Thampuran"]{--dot-c:#8C6B2E;}
-.chip[data-filter="Mohini Pey"]{--dot-c:#9B596E;}
-.chip[data-filter="Sudalai Madan"]{--dot-c:#8B4B2E;}
-.chip[data-filter="Panjurli"]{--dot-c:#5B5A3B;}
-.chip[data-filter="Kallurti"]{--dot-c:#5A4678;}
-.chip[data-filter="all"]{--dot-c:#8e9aaf;}
+        /* Hide Leaflet Controls */
+        .leaflet-control-zoom,
+        .leaflet-control-attribution {
+            display: none !important;
+        }
 
-.archive-card .accent{
-  position:absolute;top:0;left:0;width:3px;height:100%;
-  background:var(--gc);opacity:0.6;
-}
-.archive-card .glow{
-  position:absolute;top:-40px;right:-40px;width:120px;height:120px;
-  background:radial-gradient(circle, var(--gc) 0%, transparent 70%);
-  opacity:0.12;pointer-events:none;
-}
-#bottom-bar{position:fixed;bottom:0;left:0;width:100%;height:calc(54px + env(safe-area-inset-bottom));padding:0 22px env(safe-area-inset-bottom);display:flex;justify-content:space-between;align-items:center;border-radius:0;border:none;border-top:1px solid var(--border);z-index:1000}
-#signal-text{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--txt2)}
-#signal-text span{color:var(--txt)}
-#region-badge{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--txt2);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:4px 10px;border-radius:999px}
-#refresh-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--border);color:rgba(255,255,255,.6);font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s ease;flex-shrink:0}
-#refresh-btn:active{background:rgba(255,255,255,.14);transform:rotate(180deg) scale(.92)}
+        /* OVERLAYS & ATMOSPHERE */
+        #dark-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            transition: background 3s ease;
+        }
+        
+        .night-overlay {
+            background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.85) 100%);
+        }
 
-/* PERMISSION OVERLAY */
-#perm-overlay{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.98);-webkit-display:flex;align-items:center;justify-content:center;padding:28px}
-#perm-card{max-width:320px;width:100%;background:rgba(12,12,12,.95);border:1px solid rgba(255,255,255,.07);border-radius:28px;padding:36px 28px 32px;text-align:center}
-#perm-logo{font-size:11px;font-weight:800;letter-spacing:.5em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:28px}
-#perm-card h2{font-size:18px;font-weight:700;letter-spacing:.01em;margin-bottom:10px;color:rgba(255,255,255,.9)}
-#perm-card p{font-size:13px;line-height:1.7;color:rgba(255,255,255,.35);margin-bottom:28px;font-weight:400}
-#perm-allow-btn{width:100%;height:46px;background:#fff;color:#000;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s ease}
-#perm-allow-btn:disabled{opacity:.5;cursor:not-allowed}
+        #ambient-particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            bottom: -20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            filter: blur(3px);
+            animation: floatUp linear infinite;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
 
-/* INLINE SEARCH FALLBACK */
-#perm-fallback{margin-top:20px;display:none;}
-#perm-fallback-label{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.25);margin-bottom:10px;}
-#perm-fallback-input{width:100%;height:42px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;padding:0 14px;outline:none;transition:border .2s ease;}
-#perm-fallback-input::placeholder{color:rgba(255,255,255,.2);}
-#perm-fallback-input:focus{border-color:rgba(255,255,255,.2);}
-#perm-fallback-results{margin-top:6px;background:rgba(10,10,10,.98);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;display:none;}
-.perm-result-item{padding:12px 14px;font-size:12px;color:rgba(255,255,255,.6);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);text-align:left;transition:background .2s;}
-.perm-result-item:last-child{border-bottom:none;}
-.perm-result-item:active{background:rgba(255,255,255,.05);}
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1) translateX(0); opacity: 0; }
+            20% { opacity: 0.4; }
+            80% { opacity: 0.4; }
+            100% { transform: translateY(-100vh) scale(2) translateX(30px); opacity: 0; }
+        }
 
-/* LOADING SPINNER */
-.loader{width:16px;height:16px;border:2px solid #000;border-bottom-color:transparent;border-radius:50%;display:none;animation:rotation 1s linear infinite}
-@keyframes rotation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-#perm-allow-btn.loading .loader{display:inline-block}
-#perm-allow-btn.loading .btn-text{display:none}
+        /* LIQUID GLASS SYSTEM */
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(28px) saturate(200%);
+            -webkit-backdrop-filter: blur(28px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
 
-/* GHOST MARKERS (Glowing Dots) */
-.ghost-outer{background:transparent;border:none}
-.ghost-inner{
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    animation: floatG 4s ease-in-out infinite, pulseMarker 2s ease-in-out infinite;
-    box-shadow: 0 0 15px currentColor;
-    background-color: currentColor;
-}
+        /* TOP BAR */
+        #top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(56px + env(safe-area-inset-top));
+            padding: env(safe-area-inset-top) 20px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            z-index: 1000;
+        }
 
-.rarity-common { color: #888888; }
-.rarity-uncommon { color: #44aa44; }
-.rarity-rare { color: #4488ff; }
-.rarity-epic { color: #aa44ff; }
-.rarity-legendary { color: #ffaa00; }
-.rarity-mythic { color: #ff2222; }
+        .top-title {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+        }
 
-@keyframes floatG{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes pulseMarker{0%,100%{opacity: 0.6; transform: scale(0.9);} 50%{opacity: 1; transform: scale(1.1);}}
+        .top-score {
+            font-size: 24px;
+            font-weight: 800;
+            text-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
 
-/* GRAVEYARD MARKERS */
-.grave-outer{background:transparent;border:none}
-.grave-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.35);text-shadow:0 0 8px rgba(255,255,255,.15)}
+        /* PARANORMAL BANNER */
+        #paranormal-banner {
+            position: fixed;
+            top: calc(56px + env(safe-area-inset-top) + 16px);
+            left: 16px;
+            right: 16px;
+            padding: 14px 16px;
+            z-index: 1000;
+            text-align: center;
+            transition: all 1s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-/* BOTTOM SHEET */
-#sheet{position:fixed;bottom:-100%;left:0;width:100%;max-height:80vh;background:rgba(6,6,6,0.98);-webkit-border-top:1px solid var(--border);border-radius:28px 28px 0 0;padding:28px 22px calc(28px + env(safe-area-inset-bottom));z-index:2000;transition:bottom .5s cubic-bezier(.2,.8,.2,1);overflow-y:auto;box-shadow:0 -16px 50px rgba(0,0,0,.9)}
-#sheet.open{bottom:0}
-#sheet-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.08);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.sh-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:26px;padding-right:36px}
-.sh-icon{font-size:38px;opacity:.75;flex-shrink:0}
-.sh-name{font-size:22px;font-weight:800;letter-spacing:.02em;margin-bottom:5px}
-.sh-tag{font-size:10px;text-transform:uppercase;letter-spacing:.2em;font-weight:700;color:var(--txt2)}
-.sh-meta{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
-.meta-blk{display:flex;flex-direction:column;gap:5px}
-.meta-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--txt2);font-weight:700}
-.meta-val{font-size:13px;font-weight:600}
-.sh-sec{margin-bottom:24px}
-.sec-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:var(--txt2);font-weight:800;margin-bottom:10px}
-.sec-txt{font-size:14px;line-height:1.7;color:rgba(255,255,255,.82)}
+        .banner-title {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
 
-/* FOG & PARTICLES */
-#fog{position:absolute;top:0;left:0;width:200%;height:200%;opacity:.02;z-index:1;pointer-events:none;animation:fogA 120s linear infinite;background:url('https://raw.githubusercontent.com/danielstuart14/CSS_FOG_ANIMATION/master/fog1.png') repeat-x;background-size:100% 100%;display:none !important;}
-@keyframes fogA{0%{transform:translate(0,0)}100%{transform:translate(-50%,-10%)}}
-#pts{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;opacity:0.4;display:none !important;}
-.pt{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:ptA linear infinite}
-@keyframes ptA{0%{opacity:0;transform:translateY(0) scale(1)}20%{opacity:.25}80%{opacity:.25}100%{opacity:0;transform:translateY(-70px) scale(0)}}
+        .banner-subtitle {
+            font-size: 11px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
 
-/* DANGER ZONES */
-.dz-path{animation:dzP 10s ease-in-out infinite; filter: blur(20px);}
-.dz-label {
-    font-size: 10px;
-    font-weight: 800;
-    color: rgba(255, 50, 50, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    pointer-events: none;
-    text-shadow: 0 0 5px rgba(0,0,0,0.5);
-}
-@keyframes dzP{0%,100%{opacity:.1}50%{opacity:.15}}
+        .banner-glow-red { 
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+            border-color: rgba(231, 76, 60, 0.4) !important; 
+        }
+        .banner-glow-red .banner-title { color: #ff8a80; text-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
 
-/* USER DOT */
-.ulm{display:flex;align-items:center;justify-content:center}
-.dot-c{width:10px;height:10px;background:rgba(255,255,255,.85);border-radius:50%;box-shadow:0 0 12px rgba(255,255,255,.4);z-index:2}
-.dot-p{position:absolute;width:10px;height:10px;background:rgba(255,255,255,.5);border-radius:50%;animation:pulseA 3s cubic-bezier(.2,.8,.2,1) infinite;z-index:1}
-@keyframes pulseA{0%{transform:scale(1);opacity:.8}100%{transform:scale(4);opacity:0}}
+        .banner-glow-blue { 
+            box-shadow: 0 0 30px rgba(100, 100, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+            border-color: rgba(100, 100, 255, 0.3) !important; 
+        }
+        .banner-glow-blue .banner-title { color: #b3c2ff; text-shadow: 0 0 10px rgba(100, 100, 255, 0.4); }
 
-/* ARCHIVE UI */
-/* ARCHIVE UI REDESIGN */
-#archive-sheet{
-  display:flex;flex-direction:column;
-  z-index:5000;
-  background:rgba(10,10,10,0.98);
-  
-  -webkit-
-  border-left:1px solid rgba(255,255,255,0.08);
-  transform:translateX(101%);
-  transition:transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  position:fixed;top:0;height:100%;
-  will-change:transform;
-}
-.archive-header{
-  padding:calc(30px + env(safe-area-inset-top)) 24px 20px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  display:flex;justify-content:space-between;align-items:flex-start;
-  background:linear-gradient(to bottom, rgba(255,255,255,0.02), transparent);
-}
-.archive-header div h2{
-  font-weight:900;letter-spacing:0.2em;font-size:1.3rem;color:#fff;margin:0;text-transform:uppercase;
-}
-.archive-header div p{
-  font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;
-}
-#about-trigger{
-  margin-top:8px;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--txt);
-  opacity:0.5;cursor:pointer;display:inline-block;border-bottom:1px solid rgba(255,255,255,0.2);
-  padding-bottom:2px;transition:opacity 0.2s ease;
-}
-#about-trigger:hover{opacity:1;}
-.archive-close{
-  width:40px;height:40px;
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  transition:all 0.2s ease;
-}
-.archive-close:active{background:rgba(255,255,255,0.15);transform:scale(0.9);}
+        .banner-glow-clear { 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); 
+        }
 
-.archive-region-sec{margin-bottom:30px;padding:0 20px;}
-.archive-region-sec h4{
-  font-size:0.75rem;text-transform:uppercase;letter-spacing:0.3em;color:rgba(255,255,255,0.25);
-  margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:10px;
-}
+        /* FILTER ROW */
+        #filter-row {
+            position: fixed;
+            top: calc(56px + env(safe-area-inset-top) + 90px);
+            left: 0;
+            width: 100%;
+            padding: 0 16px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            z-index: 1000;
+        }
 
-#archive-list{flex:1;overflow-y:auto;padding:24px 0;scroll-behavior:smooth;}
-.archive-card{
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:14px;
-  padding:20px;
-  display:flex;flex-direction:column;gap:12px;
-  transition:all 0.25s ease;
-  cursor:pointer;
-  position:relative;overflow:hidden;
-  margin-bottom:16px;
-}
-.archive-card:active{background:rgba(255,255,255,0.08);transform:scale(0.98);}
-.archive-card.locked{opacity:0.3;filter:saturate(0);}
-.archive-card .r-tag{
-  font-size:0.55rem;text-transform:uppercase;letter-spacing:0.15em;padding:4px 10px;border-radius:4px;
-  width:fit-content;font-weight:800;background:rgba(255,255,255,0.05);
-}
-.archive-card h3{font-size:1.15rem;font-weight:800;margin:0;color:rgba(255,255,255,0.95);letter-spacing:0.02em;}
-.archive-card .summary{font-size:0.85rem;line-height:1.5;color:rgba(255,255,255,0.55);font-weight:400;}
-.archive-card .footer{
-  display:flex;justify-content:space-between;align-items:center;margin-top:5px;
-  font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);
-}
-.archive-card .glow{position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle, var(--gc) 0%, transparent 70%);opacity:0.1;pointer-events:none;}
+        #filter-row::-webkit-scrollbar {
+            display: none;
+        }
 
-#detail-sheet{
-  z-index:6000;background:#080808;padding:0;display:flex;flex-direction:column;
-  transform:translateY(100%);transition:transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  position:fixed;top:0;left:0;right:0;height:100%;
-}
-.detail-hero{height:45vh;position:relative;display:flex;align-items:flex-end;padding:40px 24px;overflow:hidden;}
-.detail-content{flex:1;overflow-y:auto;padding:40px 24px;background:#080808;padding-bottom:100px;}
-.detail-section h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:15px;font-weight:800;}
-.detail-section p{font-size:1rem;line-height:1.8;color:rgba(255,255,255,0.75);margin-bottom:30px;}
-.stat-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);padding:18px;border-radius:12px;}
+        .chip {
+            height: 36px;
+            padding: 0 20px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
 
-/* ABOUT SECTION */
-#about-sheet{
-  z-index:7000;background:#050505;
-  transform:translateX(100%);transition:transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-  position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;
-}
-#about-sheet.open{transform:translateX(0);}
-.about-content{
-  flex:1;overflow-y:auto;padding:60px 30px 120px;max-width:600px;margin:0 auto;
-}
-.about-content h1{font-size:2.2rem;font-weight:900;letter-spacing:-1px;margin-bottom:24px;color:#fff;}
-.about-content h2{font-size:1.5rem;font-weight:800;margin:40px 0 20px;color:#fff;}
-.about-content p{font-size:1.05rem;line-height:1.8;color:rgba(255,255,255,0.6);margin-bottom:24px;}
-.about-content ul{margin-bottom:30px;padding-left:20px;}
-.about-content li{font-size:1.05rem;line-height:1.8;color:rgba(255,255,255,0.6);margin-bottom:12px;}
-.about-content hr{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:50px 0;}
-.about-close-btn{
-  position:fixed;top:30px;right:24px;width:44px;height:44px;border-radius:50%;
-  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;
-}
+        .chip.active {
+            background: #ffffff;
+            color: #000000;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
 
-#archive-btn{
-  width:44px;height:44px;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,0.06);
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,0.1);
-  cursor:pointer;
-  margin-right:6px;
-  flex-shrink:0;
-  position:relative;
-  z-index:1100;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-  transition:background .15s ease, transform .1s ease;
-  user-select:none;
-  -webkit-user-select:none;
-}
-#archive-btn:active{background:rgba(255,255,255,0.14);transform:scale(0.92);}
-#archive-sheet{
-  display:flex;flex-direction:column;
-  z-index:5000;
-  background:rgba(6,6,6,0.98);
-  
-  -webkit-
-  border-left:1px solid rgba(255,255,255,0.07);
-  transform:translateX(101%);
-  transition:transform 0.45s cubic-bezier(0.4,0,0.2,1);
-  position:fixed;top:0;height:100%;
-  will-change:transform;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-}
-#archive-sheet.open{transform:translateX(0);}
-.archive-overlay{
-  display:none;
-  position:fixed;inset:0;
-  z-index:4999;
-  background:rgba(0,0,0,0.5);
-  
-  -webkit-
-}
-.archive-overlay.open{display:block;}
-.archive-header{
-  padding:calc(20px + env(safe-area-inset-top)) 20px 20px;
-  border-bottom:1px solid rgba(255,255,255,0.07);
-  display:flex;justify-content:space-between;align-items:center;
-  background:rgba(255,255,255,0.01);
-  flex-shrink:0;
-}
-.archive-header h2{font-weight:800;letter-spacing:.02em;font-size:1.2rem;color:#fff;margin:0;text-transform:uppercase;letter-spacing:.1em;}
-.archive-close{
-  width:44px;height:44px;
-  background:rgba(255,255,255,0.06);
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-  transition:background .15s ease, transform .1s ease;
-  flex-shrink:0;
-}
-.archive-close:active{background:rgba(255,255,255,0.14);transform:scale(0.9);}
-#archive-list{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:1fr;gap:12px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
-.archive-card{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.06);
-  border-radius:18px;
-  padding:18px;
-  display:flex;flex-direction:column;gap:10px;
-  transition:background .2s ease;
-  cursor:pointer;
-  position:relative;overflow:hidden;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-}
-.archive-card:active{background:rgba(255,255,255,0.07);}
-.archive-card.locked{opacity:0.2;filter:grayscale(1);pointer-events:none;}
-.archive-card .r-tag{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;padding:3px 10px;border-radius:999px;width:fit-content;font-weight:700;}
-.archive-card h3{font-size:1rem;font-weight:700;margin:0;color:rgba(255,255,255,0.9);}
-.archive-card .meta{font-size:0.7rem;color:rgba(255,255,255,0.3);display:flex;gap:12px;letter-spacing:.05em;text-transform:uppercase;}
-.archive-card .glow{position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle, var(--gc) 0%, transparent 70%);opacity:0.08;pointer-events:none;}
+        /* BOTTOM BAR */
+        #bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: calc(64px + env(safe-area-inset-bottom));
+            padding: 0 24px env(safe-area-inset-bottom) 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            border-bottom: none;
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.4);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+        }
 
-@media (max-width:600px){
-  #archive-sheet{width:100%;}
-}
-@media (min-width:601px){
-  #archive-sheet{width:400px;right:0;}
-}
-</style>
+        .bottom-stat {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .bottom-stat span {
+            color: #fff;
+            font-weight: 800;
+        }
+
+        .last-caught-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rarity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: dotBreathing 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes dotBreathing {
+            0% { transform: scale(0.8); opacity: 0.6; }
+            100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px currentColor; }
+        }
+
+        /* BOTTOM SHEET */
+        #bottom-sheet {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.75);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px 32px 0 0;
+            padding: 36px 24px calc(36px + env(safe-area-inset-bottom));
+            z-index: 2000;
+            transition: bottom 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
+        }
+
+        #bottom-sheet.active {
+            bottom: 0;
+        }
+
+        #sheet-emoji {
+            font-size: 64px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+
+        #sheet-name {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+
+        #sheet-type {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-weight: 800;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        #sheet-points {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 800;
+            margin-bottom: 32px;
+        }
+
+        #catch-btn {
+            width: 100%;
+            height: 56px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            border-radius: 18px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        #catch-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+
+        /* GHOST MARKERS & GRAVEYARDS */
+        .ghost-marker {
+            width: 52px;
+            height: 52px;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            animation: floatSmooth 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 0 15px rgba(255,255,255,0.05);
+        }
+
+        .ghost-marker.daytime {
+            opacity: 0.4;
+            filter: grayscale(0.5);
+        }
+
+        @keyframes floatSmooth {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .graveyard-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            filter: drop-shadow(0 0 15px rgba(155, 89, 182, 0.8));
+            animation: floatSmooth 4s ease-in-out infinite;
+        }
+
+        /* DANGER ZONES SVG ANIMATION */
+        @keyframes pulse-zone {
+            0% { fill-opacity: 0.05; transform: scale(0.98); transform-origin: center; }
+            100% { fill-opacity: 0.2; transform: scale(1.02); transform-origin: center; }
+        }
+        .atmospheric-zone {
+            animation: pulse-zone 4s ease-in-out infinite alternate;
+        }
+
+        /* RARITY BORDERS & GLOWS */
+        .rarity-common { border: 1.5px solid rgba(80, 80, 80, 0.7); }
+        .rarity-uncommon { border: 1.5px solid rgba(46, 204, 113, 0.7); box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
+        .rarity-rare { border: 1.5px solid rgba(52, 152, 219, 0.8); box-shadow: 0 0 20px rgba(52, 152, 219, 0.3); }
+        .rarity-epic { border: 1.5px solid rgba(155, 89, 182, 0.9); box-shadow: 0 0 25px rgba(155, 89, 182, 0.4); }
+        .rarity-legendary { 
+            border: 2px solid rgba(243, 156, 18, 0.9); 
+            width: 60px;
+            height: 60px;
+            margin-left: -4px; 
+            margin-top: -4px;
+            box-shadow: 0 0 30px rgba(243, 156, 18, 0.6);
+            font-size: 30px;
+        }
+        .rarity-mythic { 
+            border: 2px solid rgba(231, 76, 60, 1); 
+            width: 60px;
+            height: 60px;
+            margin-left: -4px; 
+            margin-top: -4px;
+            font-size: 30px;
+            animation: floatSmooth 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite, mythicPulse 2s infinite alternate;
+        }
+
+        @keyframes mythicPulse {
+            0% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); }
+            100% { box-shadow: 0 0 40px rgba(231, 76, 60, 1), inset 0 0 20px rgba(231,76,60,0.5); }
+        }
+
+        /* UTILITY COLORS */
+        .color-common { color: #888; }
+        .color-uncommon { color: #2ecc71; }
+        .color-rare { color: #3498db; }
+        .color-epic { color: #9b59b6; }
+        .color-legendary { color: #f39c12; }
+        .color-mythic { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; }
+
+        .bg-common { background-color: #888; }
+        .bg-uncommon { background-color: #2ecc71; }
+        .bg-rare { background-color: #3498db; }
+        .bg-epic { background-color: #9b59b6; }
+        .bg-legendary { background-color: #f39c12; }
+        .bg-mythic { background-color: #e74c3c; }
+
+        /* USER LOCATION */
+        .user-location-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dot-core {
+            width: 14px;
+            height: 14px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--glow-color);
+            z-index: 2;
+        }
+        .dot-pulse {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            animation: pulse 2.5s ease-out infinite;
+            z-index: 1;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(5); opacity: 0; }
+        }
+    </style>
 </head>
 <body>
-<div id="map"></div>
 
+    <div id="map"></div>
+    <div id="dark-overlay"></div>
+    <div id="ambient-particles"></div>
 
-
-
-<div id="perm-overlay" style="display:none">
-  <div id="perm-card">
-    <div id="perm-logo">NEELI</div>
-    <h2>Enable Location</h2>
-    <p>Paranormal intelligence is calibrated to your region. Grant access to begin.</p>
-    <button id="perm-allow-btn">
-      <span class="loader"></span>
-      <span class="btn-text">Allow Location Access</span>
-    </button>
-    <div id="perm-fallback">
-      <div id="perm-fallback-label">Search a location instead</div>
-      <input id="perm-fallback-input" type="text" placeholder="City, town or village…" autocomplete="off">
-      <div id="perm-fallback-results"></div>
+    <div id="top-bar" class="liquid-glass">
+        <div class="top-title">HAUNT</div>
+        <div class="top-score" id="score-display">0</div>
     </div>
-  </div>
-</div>
 
-<div id="top-bar" class="glass">
-  <div style="display:flex; align-items:center;">
-    <div id="archive-btn" title="Folklore Archive">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+    <div id="paranormal-banner" class="liquid-glass">
+        <div class="banner-title" id="banner-title">Loading...</div>
+        <div class="banner-subtitle" id="banner-subtitle">Detecting atmospheric activity...</div>
     </div>
-    <div id="top-title">NEELI</div>
-  </div>
-  <div id="search-wrap">
-    <span id="search-icon">🔍</span>
-    <input id="search-input" type="text" placeholder="Search city, village…" autocomplete="off"/>
-    <div id="search-results"></div>
-  </div>
-  <div id="about-btn-top" title="About NEELI" style="width:36px; height:36px; background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--txt2); margin-left:8px; font-size:16px;">
-    ℹ️
-  </div>
-</div>
 
-<div id="status-banner" class="glass"></div>
-
-<div id="filter-row">
-  <div class="chip active" data-filter="all">All Records</div>
-  <div class="chip" data-filter="Yakshi">Yakshi</div>
-  <div class="chip" data-filter="Neeli">Neeli</div>
-  <div class="chip" data-filter="Odiyan">Odiyan</div>
-  <div class="chip" data-filter="Chathan">Chathan</div>
-  <div class="chip" data-filter="Pey">Pey</div>
-  <div class="chip" data-filter="Bhoota">Bhoota</div>
-</div>
-
-<div id="bottom-bar" class="glass">
-  <div id="signal-text">Signals: <span id="ghost-count">0</span> detected</div>
-  <div id="region-badge">Detecting region…</div>
-  <button id="refresh-btn" title="Refresh">↻</button>
-</div>
-
-<div id="sheet">
-  <button id="sheet-close">✕</button>
-  <div class="sh-header">
-    <div id="sh-dot" class="ghost-inner" style="margin-top: 8px;"></div>
-    <div>
-      <div id="sh-name" class="sh-name"></div>
-      <div id="sh-tag" class="sh-tag"></div>
+    <div id="filter-row">
+        <div class="chip liquid-glass active" data-filter="All Spirits">All Spirits</div>
+        <div class="chip liquid-glass" data-filter="Neeli">Neeli</div>
+        <div class="chip liquid-glass" data-filter="Yakshi">Yakshi</div>
+        <div class="chip liquid-glass" data-filter="Odiyan">Odiyan</div>
+        <div class="chip liquid-glass" data-filter="Chathan">Chathan</div>
+        <div class="chip liquid-glass" data-filter="Ritual">Ritual</div>
+        <div class="chip liquid-glass" data-filter="Forest">Forest</div>
     </div>
-  </div>
-  <div class="sh-meta">
-    <div class="meta-blk"><span class="meta-lbl">Region</span><span id="sh-region" class="meta-val"></span></div>
-    <div class="meta-blk"><span class="meta-lbl">Intensity</span><span id="sh-intensity" class="meta-val"></span></div>
-    <div class="meta-blk"><span class="meta-lbl">Primary Haunt</span><span id="sh-haunt" class="meta-val"></span></div>
-  </div>
-  <div class="sh-sec"><div class="sec-lbl">Folklore Background</div><div id="sh-back" class="sec-txt"></div></div>
-  <div class="sh-sec"><div class="sec-lbl">Known Origin</div><div id="sh-origin" class="sec-txt"></div></div>
-  <div class="sh-sec"><div class="sec-lbl">Last Reported Sighting</div><div id="sh-sighting" class="sec-txt"></div></div>
-</div>
 
-<!-- ARCHIVE OVERLAY BACKDROP -->
-<div class="archive-overlay" id="archive-overlay"></div>
-
-<!-- ARCHIVE DRAWER -->
-<div id="archive-sheet">
-  <div class="archive-header">
-    <div>
-      <h2>Archive</h2>
-      <p>Paranormal Records & Folklore Entities</p>
-      <span id="about-trigger">ℹ️ About NEELI</span>
+    <div id="bottom-bar" class="liquid-glass">
+        <div class="bottom-stat"><span id="ghost-count">0</span> entities near</div>
+        <div class="bottom-stat last-caught-container">
+            Last: <span id="last-caught">-</span>
+            <div id="last-caught-dot" class="rarity-dot" style="display: none;"></div>
+        </div>
     </div>
-    <div class="archive-close" id="archive-close-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+
+    <div id="bottom-sheet">
+        <div id="sheet-emoji"></div>
+        <div id="sheet-name"></div>
+        <div id="sheet-type"></div>
+        <div id="sheet-points"></div>
+        <button id="catch-btn">CATCH</button>
     </div>
-  </div>
-  <div id="archive-list"></div>
-</div>
 
-<!-- ABOUT DRAWER -->
-<div id="about-sheet">
-  <div class="about-close-btn" id="about-close-btn">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-  </div>
-  <div class="about-content">
-    <h1>About NEELI</h1>
-    <p>NEELI is a location-based paranormal folklore exploration platform inspired by regional ghost legends, environmental mapping and cultural storytelling across South India.</p>
-    <p>The platform combines:</p>
-    <ul>
-      <li>folklore archives</li>
-      <li>geospatial mapping</li>
-      <li>environmental patterns</li>
-      <li>historical locations</li>
-      <li>user-region analysis</li>
-    </ul>
-    <p>to simulate paranormal “activity zones” in an immersive and atmospheric way.</p>
-    
-    <hr>
-    
-    <h2>How NEELI Works</h2>
-    <p>NEELI does not claim to scientifically prove the existence of ghosts or supernatural entities.</p>
-    <p>Instead, the platform uses a combination of:</p>
-    <ul>
-      <li>geographic isolation data</li>
-      <li>historical folklore regions</li>
-      <li>cemetery proximity</li>
-      <li>environmental darkness levels</li>
-      <li>low-density rural mapping</li>
-      <li>local cultural legends</li>
-      <li>nighttime activity windows</li>
-    </ul>
-    <p>to generate paranormal probability zones across the map.</p>
-    <p>These zones are inspired by real folklore stories, reported myths and region-specific supernatural beliefs.</p>
-    
-    <hr>
-    
-    <h2>Paranormal Activity Mapping</h2>
-    <p>The system analyzes nearby environmental conditions such as:</p>
-    <ul>
-      <li>graveyard locations</li>
-      <li>forest regions</li>
-      <li>abandoned routes</li>
-      <li>isolated roads</li>
-      <li>riversides</li>
-      <li>low-light regions</li>
-      <li>historical folklore hotspots</li>
-    </ul>
-    <p>Using this data, NEELI creates atmospheric “signal regions” where paranormal folklore entities are more likely to appear within the experience.</p>
-    <p>Higher anomaly regions may contain:</p>
-    <ul>
-      <li>stronger folklore entities</li>
-      <li>rare paranormal sightings</li>
-      <li>region-specific spirits</li>
-      <li>historical supernatural records</li>
-    </ul>
-    
-    <hr>
-    
-    <h2>Regional Folklore Intelligence</h2>
-    <p>NEELI dynamically changes entities depending on geographic region.</p>
-    <p><strong>Examples:</strong></p>
-    <p><strong>Kerala:</strong></p>
-    <ul>
-      <li>Yakshi</li>
-      <li>Odiyan</li>
-      <li>Gulikan</li>
-      <li>Neeli</li>
-    </ul>
-    <p><strong>Tamil Nadu:</strong></p>
-    <ul>
-      <li>Mohini Pey</li>
-      <li>Sudalai Madan</li>
-      <li>Kollivai Pisasu</li>
-    </ul>
-    <p><strong>Karnataka:</strong></p>
-    <ul>
-      <li>Bhoota</li>
-      <li>Panjurli</li>
-      <li>Kallurti</li>
-    </ul>
-    <p>The archive system is designed to preserve and present regional folklore traditions in an interactive exploration format.</p>
-    
-    <hr>
-    
-    <h2>Scientific & Cultural Approach</h2>
-    <p>NEELI is designed as:</p>
-    <ul>
-      <li>a folklore exploration platform</li>
-      <li>a cultural storytelling experience</li>
-      <li>an atmospheric paranormal simulation</li>
-    </ul>
-    <p>The app blends:</p>
-    <ul>
-      <li>environmental mapping</li>
-      <li>geolocation systems</li>
-      <li>folklore documentation</li>
-      <li>cinematic interaction design</li>
-    </ul>
-    <p>to create an immersive supernatural investigation experience.</p>
-    <p>NEELI does not present paranormal entities as verified scientific fact. The platform is intended for entertainment, folklore preservation and atmospheric exploration.</p>
-  </div>
-</div>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-<!-- DETAIL VIEW -->
-<div id="detail-sheet">
-  <div class="archive-header" style="background:transparent; border:none; position:absolute; top:0; left:0; right:0; z-index:10;">
-    <div class="archive-close" onclick="closeDetail()" style="background:rgba(0,0,0,0.5); ">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
-  </div>
-  <div id="detail-body"></div>
-</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup Map
+            const map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false
+            }).setView([0, 0], 17);
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script>
-(function(){
-// ── PARTICLES ──────────────────────────────────────────────
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20
+            }).addTo(map);
 
+            let userMarker;
+            const pulsingIcon = L.divIcon({
+                className: 'user-location-marker',
+                html: '<div class="dot-pulse"></div><div class="dot-core"></div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
 
+            // Particle System
+            function initParticles() {
+                const container = document.getElementById('ambient-particles');
+                for(let i=0; i<30; i++) {
+                    let p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = Math.random() * 100 + 'vw';
+                    p.style.width = Math.random() * 4 + 2 + 'px';
+                    p.style.height = p.style.width;
+                    p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                    p.style.animationDelay = (Math.random() * 10) + 's';
+                    container.appendChild(p);
+                }
+            }
+            initParticles();
 
-// ── MAP INIT ───────────────────────────────────────────────
-var map=L.map('map',{zoomControl:false,attributionControl:false,zoomSnap:.5}).setView([10.5,76.2],14);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:20}).addTo(map);
+            // Ghost Data mapping types
+            const ghostsList = [
+                { name: 'Pretham', rarity: 'common', type: 'Spirit', points: 10, emoji: '🕯️' },
+                { name: 'Pishachu', rarity: 'common', type: 'Spirit', points: 10, emoji: '👁️' },
+                { name: 'Marutha', rarity: 'common', type: 'Forest', points: 15, emoji: '💨' },
+                { name: 'Maadan', rarity: 'common', type: 'Forest', points: 15, emoji: '🌑' },
+                { name: 'Parakutty', rarity: 'uncommon', type: 'Ritual', points: 25, emoji: '🌿' },
+                { name: 'Neeli', rarity: 'uncommon', type: 'Neeli', points: 25, emoji: '💧' },
+                { name: 'Karinkali', rarity: 'rare', type: 'Ritual', points: 50, emoji: '🖤' },
+                { name: 'Gulikan', rarity: 'rare', type: 'Ritual', points: 50, emoji: '⛓️' },
+                { name: 'Kutti Chathan', rarity: 'epic', type: 'Chathan', points: 100, emoji: '🔥' },
+                { name: 'Chudala', rarity: 'epic', type: 'Ritual', points: 100, emoji: '🌙' },
+                { name: 'Yakshi', rarity: 'legendary', type: 'Yakshi', points: 200, emoji: '🌸' },
+                { name: 'Odiyan', rarity: 'legendary', type: 'Odiyan', points: 200, emoji: '🐺' },
+                { name: 'Kalliyankattu Neeli', rarity: 'legendary', type: 'Neeli', points: 300, emoji: '👁️' },
+                { name: 'Madan Thampuran', rarity: 'mythic', type: 'Spirit', points: 500, emoji: '👑' },
+                { name: 'Brahmarakshas', rarity: 'mythic', type: 'Spirit', points: 1000, emoji: '☠️' }
+            ];
 
-var pulseIcon = L.divIcon({
-  className: 'ulm',
-  html: '<div class="dot-p"></div><div class="dot-c"></div>',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
-});
+            // Global State
+            let score = 0;
+            let currentLatLng = null;
+            let activeGhostData = null;
+            let activeGhostMarker = null;
+            let activeFilter = 'All Spirits';
+            const spawnedGhosts = []; 
+            const dangerZones = [];
+            const graveyardLocations = [];
 
-var userMarker=null;
-var currentLatLng=null;
-var activeFilter='all';
-var currentRegionKey='kerala';
-var spawnedGhosts=[];
-var graveyardLayers=[];
-var activeGhost=null;
-var mapInitDone=false;
-var discoveredGhosts=[];
-try { discoveredGhosts = JSON.parse(localStorage.getItem('neeli_archive') || '[]'); } catch (e) { console.warn('Local storage restricted. Progress will not be saved.'); }
+            // Atmosphere Logic
+            const hour = new Date().getHours();
+            const isDay = hour >= 6 && hour < 18;
+            const isNight = !isDay;
+            const maxGhosts = isNight ? 7 : 2;
+            const spawnIntervalMs = isNight ? 25000 : 90000;
 
-// ── TIME LOGIC ─────────────────────────────────────────────
-var hr=new Date().getHours();
-var isNight=hr>=18||hr<6;
-var banner=document.getElementById('status-banner');
-if(hr>=6&&hr<18){banner.textContent='Daylight — Paranormal signals faint';banner.className='glass s-day';}
-else if(hr>=18&&hr<24){banner.textContent='Twilight — Active monitoring frequencies';banner.className='glass s-eve';}
-var LORE = {
-kerala:[
-{id:'k1',name:'Yakshi',type:'Yakshi',rarity:'legendary',intensity:'Extreme',threat:'High',time:'Nocturnal (10PM—4AM)',classification:'Vengeful Nature Spirit',haunt:'Isolated forest roads',sighting:'Reported 3 weeks ago on NH-66 near Thrissur — a woman in white seen at 2AM beside a Pala tree.',backstory:'The Yakshi is among Kerala\'s most documented supernatural entities. She appears as an extraordinarily beautiful woman, often near Pala trees whose hypnotic scent she uses to disorient victims. Her manifestations are almost exclusively nocturnal, and encounters have been recorded in folklore across centuries of Malayali oral tradition.',origin:'In the canonical accounts, the Yakshi was a woman of high birth who suffered betrayal and violent death. The intensity of her grief and desire for retribution bound her soul permanently to the terrestrial plane. She returns not from evil, but from unresolved karmic debt.',historical:'Documented in the Aithihyamala (Garland of Legends) as spirits of the Pala trees. Centuries of oral tradition in central Kerala detail their complex relationship with the human world.'},
-{id:'k2',name:'Odiyan',type:'Odiyan',rarity:'mythic',intensity:'Extreme',threat:'Lethal',time:'Deep Night (Midnight—3AM)',classification:'Shapeshifting Sorcerer',haunt:'Rural highways, paddy borders',sighting:'A shapeshifting shadow resembling a large dog reported on the Palakkad border road, October 2023.',backstory:'The Odiyan is a practitioner of the forbidden art of Odividya, enabling shapeshifting into animals — most commonly a dog, a cow, or a large cat. They are hired assassins of a supernatural kind, dispatched to terrorize or eliminate specific individuals. Their presence is felt as an inexplicable dread before the figure is ever seen.',origin:'Living men who voluntarily underwent a severe ritual sacrifice of their humanity in exchange for shapeshifting power. The craft was passed through specific low-caste lineages in northern Kerala and is believed to have disappeared with the last known practitioner in the mid-20th century.',historical:'Once a real caste-based practice in Malabar, it transitioned into folklore after the legal suppression of "Odism" in the early 20th century.'},
-{id:'k3',name:'Neeli',type:'Neeli',rarity:'epic',intensity:'High',threat:'Moderate',time:'Twilight/Midnight',classification:'Vengeful Spirit (Pretham)',haunt:'Crossroads, riverbanks',sighting:'A traveler near Kollam reported a weeping woman at a crossroads who vanished when approached — December 2023.',backstory:'Neeli is a class of vengeful female spirit deeply embedded in Kerala\'s paranormal narrative. The most historically documented case — Kalliyankattu Neeli — terrorized an entire region and required the intervention of a renowned tantric priest. She appears at crossroads or riverbanks, often weeping, and her grief is a lure.',origin:'Betrayal and murder by a trusted partner. The violence of the death combined with the depth of the betrayal creates a spirit of exceptional power that refuses to dissolve into the afterlife until the karmic debt is settled.',historical:'The story of Kalliyankattu Neeli is a cornerstone of Kerala\'s Gothic folklore, often cited as the definitive example of a "Yakshi-type" manifestation.'},
-{id:'k4',name:'Gulikan',type:'Ritual',rarity:'rare',intensity:'Extreme',threat:'Divine',time:'Eclipse/New Moon',classification:'Deity of Destruction',haunt:'Village borders, old crossroads',sighting:'An elder in Malappuram reported seeing a towering shadow at the village boundary on the night of a lunar eclipse.',backstory:'Gulikan is not merely a ghost but a deity of absolute destruction in the Malabar tradition. He is propitiated through the Theyyam performance tradition and is considered the emissary of death itself. A sighting of his form is, in classical belief, an unambiguous omen of imminent mortality for the observer or their household.',origin:'Mythology places Gulikan\'s birth at the left toe of Lord Shiva during a period of cosmic wrath. He was assigned the role of executor — both of divine punishment and of the natural order of death.',historical:'A central figure in North Malabar Theyyam rituals. His masks are among the largest and most imposing in the performance art.'},
-{id:'k5',name:'Kutti Chathan',type:'Chathan',rarity:'epic',intensity:'High',threat:'Medium (Poltergeist)',time:'Continuous (Active 24h)',classification:'Bound Elemental',haunt:'Ancestral homes, old granaries',sighting:'Objects reported moving without cause in a heritage home in Thrissur — electrical disturbances continue for three months.',backstory:'Kutti Chathan is perhaps the most morally ambiguous entity in Kerala\'s supernatural canon. It is bound by ritual to a household or a Mantrikan and serves with fierce loyalty when properly maintained. Neglect of its daily offerings, however, transforms it into a source of relentless domestic chaos — broken vessels, disappearing grain, and unexplained fires.',origin:'Summoned through a precise and dangerous sequence of rituals in ancient esoteric texts. The entity is not a soul of the dead but rather a being called from a liminal space and locked to the physical world through ceremonial binding.',historical:'Believed to be 400 separate entities in folklore, often associated with the Chathan Seva temples in central Kerala.'},
-{id:'k6',name:'Karinkali',type:'Ritual',rarity:'uncommon',intensity:'High',threat:'High',time:'Nocturnal',classification:'Shadow Manifestation',haunt:'Old ritual grounds, temple ruins',sighting:'A sudden temperature drop and the overwhelming smell of burning turmeric reported near an abandoned temple in Wayanad.',backstory:'Karinkali manifests as a dark, formless presence associated with destructive feminine energy. Its appearance is heralded by a sudden drop in ambient temperature and a deep oppressive feeling. Unlike many entities, Karinkali does not lure or deceive — it overwhelms directly.',origin:'Invoked during forbidden nocturnal ceremonies associated with the destruction of enemies. Such rituals, once completed, leave the entity unbound if the ritual is abandoned mid-way, allowing it to roam freely.',historical:'Associated with the more aggressive forms of Kali worship found in isolated forest shrines.'},
-{id:'k7',name:'Pretham',type:'Ritual',rarity:'common',intensity:'Low',threat:'Low',time:'Night',classification:'Restless Soul',haunt:'Abandoned homes',sighting:'Persistent knocking sounds reported in a derelict colonial-era house in Kottayam for six consecutive nights.',backstory:'Pretham is the generic category for a restless soul in Kerala\'s supernatural taxonomy. They have no specific agenda and no particular power, but their presence is unmistakable — objects displaced, cold spots, and an overwhelming sense of being watched.',origin:'Souls denied proper funerary rites or who died so suddenly that they remained anchored to the physical world by sheer disorientation.',historical:'The baseline of paranormal belief in Kerala, appearing in almost every village oral history.'}
-],
-tamilnadu:[
-{id:'t1',name:'Mohini Pey',type:'Pey',rarity:'epic',intensity:'High',threat:'Moderate',time:'Dawn/Dusk',classification:'Seductive Wraith',haunt:'Forest crossroads',sighting:'Reported near Kodaikanal forest road — a woman figure vanishing at dawn in April 2024.',backstory:'The Mohini Pey of Tamil folklore is a shape-taking spirit of exceptional beauty that appears at night on forest roads. She draws in travelers through conversation and companionship before revealing her true nature. Unlike Kerala\'s Yakshi, she does not use scent — her power lies entirely in conversation and charm.',origin:'Women who died at childbirth in extreme isolation, or those abandoned and left to perish. The injustice of the abandonment creates the paranormal charge.',historical:'A recurring figure in rural Tamil ghost stories, often used as a cautionary figure for travelers.'},
-{id:'t2',name:'Sudalai Madan',type:'Pey',rarity:'mythic',intensity:'Extreme',threat:'Extreme',time:'Midnight',classification:'Guardian of the Dead',haunt:'Cremation grounds, burial sites',sighting:'Ritualistic stone offerings found disturbed at a cremation ground in Madurai — late February 2024.',backstory:'Sudalai Madan is a fearsome deity-spirit complex worshipped in Tamil Nadu\'s folk tradition. He presides over cremation grounds and demands propitiation through specific ritual offerings. His anger when neglected is expressed through illness in families and unexplained deaths of livestock.',origin:'A primordial guardian of the dead assigned to the boundary between the living and deceased worlds. His origins predate organized Shaivite religion and belong to the Dravidian folk stratum.',historical:'Commonly worshipped in southern Tamil districts (Tirunelveli, Kanyakumari) as a fierce Kula-Deivam.'},
-{id:'t3',name:'Kollivai Pisasu',type:'Pey',rarity:'legendary',intensity:'High',threat:'Moderate',time:'Misty Nights',classification:'Mist Spirit',haunt:'Mountain passes, hill forests',sighting:'Kollivai hill forest road — drivers report figures in the mist that disappear on approach. Ongoing.',backstory:'Pisasu is the broad Tamil term for spirits, but the Kollivai variant is specifically associated with the Kolli Hills and their dense forest roads. They are considered remnants of those who died violently on the mountain and whose souls were never ritually released.',origin:'Violent deaths in the hills, compounded by the absence of proper last rites. The isolation of the location prevents the soul from receiving guidance toward the afterlife.',historical:'Named after the Kolli Hills, known for their 72 hairpin bends and a long history of mysterious disappearances.'},
-{id:'t4',name:'Muniyandi',type:'Pey',rarity:'rare',intensity:'Moderate',threat:'Low (Protective)',time:'Nocturnal',classification:'Boundary Guardian',haunt:'Village entrances, boundary stones',sighting:'A boundary stone at a village entrance in Madurai district found displaced — villagers report uneasy dreams.',backstory:'Muniyandi is a boundary guardian spirit prevalent across rural Tamil Nadu. He stands at the entrance of settlements, watching who enters. He is generally protective but becomes aggressive when the boundary markers are disturbed or when outsiders act with disrespect.',origin:'An ancient guardian role assigned to the spirit of a specific caste warrior who died protecting a village. The role became hereditary through ritual.',historical:'Often depicted as a giant with a mustache, holding a machete, frequently worshipped at roadside shrines.'}
-],
-karnataka:[
-{id:'ka1',name:'Panjurli',type:'Bhoota',rarity:'mythic',intensity:'High',threat:'High (Divine)',time:'Evening/Dusk',classification:'Nature Deity (Boar)',haunt:'Tuluva sacred groves',sighting:'Offerings found scattered at a Bhoota shrine near Mangalore — custodian reports witnessing a figure in the grove at dusk.',backstory:'Panjurli is one of the most revered Bhoota spirits in the Tulu-speaking coastal Karnataka tradition. He is depicted with boar-like features and is simultaneously feared and worshipped. His presence near a sacred grove (Kaavu) demands absolute silence and respect — violators are struck by sudden illness.',origin:'An ancient forest spirit of the Dravidian tradition, absorbed into the Bhoota Kola worship system of coastal Karnataka over centuries. He predates all organized religious structures in the region.',historical:'One of the primary spirits in the Kantara folklore tradition of coastal Karnataka.'},
-{id:'ka2',name:'Kallurti',type:'Bhoota',rarity:'legendary',intensity:'Moderate',threat:'Low',time:'Harvest Season',classification:'Agricultural Guardian',haunt:'Fields, agricultural borders',sighting:'Strange circular marks found on paddy fields near Udupi — farmers report animals refusing to enter the field at night.',backstory:'Kallurti is a female Bhoota worshipped by agricultural communities for protection of crops and cattle. When properly propitiated, she ensures a good harvest. When neglected, she manifests as crop failure, sick cattle, and strange marks in the fields.',origin:'The deified spirit of a woman from an agricultural community who was an exceptionally skilled healer and guardian — elevated to Bhoota status after her natural death.',historical:'A central figure in the oral epics (Paddanas) of the Tulu people.'},
-{id:'ka3',name:'Bhoota',type:'Bhoota',rarity:'rare',intensity:'Moderate',threat:'Variable',time:'Ritual Nights',classification:'Ancestral Force',haunt:'Sacred groves, ancestral lands',sighting:'An unusual luminescence reported near a centuries-old Bhoota shrine in Dakshina Kannada — October 2023.',backstory:'Bhoota is the overarching class of supernatural beings in the Tulu Nadu tradition, fundamentally different from the ghost concept elsewhere. They are neither purely malevolent nor benevolent but are forces that must be understood and respected within their strict ritual framework.',origin:'Ancestral spirits, deified heroes, and nature forces that have been ritually incorporated into the Bhoota Kola tradition. Their origin spans human, divine, and natural categories.',historical:'The Bhoota Kola performance is a thousand-year-old ritual tradition that continues to be a major cultural force today.'},
-{id:'ka4',name:'Naale Baa',type:'Bhoota',rarity:'uncommon',intensity:'Low',threat:'Medium',time:'Midnight',classification:'Threshold Spirit',haunt:'Doorways, thresholds',sighting:'Reported in urban Bengaluru outskirts — chalk writing appeared on doors of several homes in a single night. 2023.',backstory:'Naale Baa, literally "Come Tomorrow," is a protective invocation written on doors to deflect a wandering female spirit. The spirit is said to knock on doors at night and call out in a familiar voice — those who open the door are taken. The inscription is believed to trick it into returning the next night indefinitely.',origin:'A malevolent female spirit of unknown precise origin, documented across coastal Karnataka and Goa. Its periodic reappearances in urban folklore suggest it represents collective anxiety around the threshold between the living and the dead.',historical:'Became a viral urban legend in the 1990s in Bengaluru, leading to thousands of homes writing the phrase on their doors.'}
-  ]
-};
+            function updateAtmosphere() {
+                const banner = document.getElementById('paranormal-banner');
+                const title = document.getElementById('banner-title');
+                const subtitle = document.getElementById('banner-subtitle');
+                const overlay = document.getElementById('dark-overlay');
 
-function getRegionGhosts(key){return LORE[key]||LORE.kerala;}
+                if (hour >= 23 || hour < 3) {
+                    banner.className = "liquid-glass banner-glow-red";
+                    title.innerText = "🌙 Haunting Window: 11PM — 3AM";
+                    subtitle.innerText = "⚠ Paranormal activity and mythic sightings peaking";
+                    overlay.classList.add('night-overlay');
+                } else if (hour >= 18 && hour < 23) {
+                    banner.className = "liquid-glass banner-glow-blue";
+                    title.innerText = "🌑 Nightfall Approaches";
+                    subtitle.innerText = "Spirits are waking. Proceed with caution.";
+                } else if (hour >= 3 && hour < 6) {
+                    banner.className = "liquid-glass banner-glow-blue";
+                    title.innerText = "🌫️ The Witching Hour Ends";
+                    subtitle.innerText = "Activity is subsiding before dawn.";
+                    overlay.classList.add('night-overlay');
+                } else {
+                    banner.className = "liquid-glass banner-glow-clear";
+                    title.innerText = "☀️ Daylight Hours";
+                    subtitle.innerText = "Return at night. Ghosts are currently resting.";
+                }
+            }
+            updateAtmosphere();
 
-// ── REVERSE GEOCODE ────────────────────────────────────────
-function detectRegion(lat,lng){
-  fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng)
-  .then(function(r){return r.json();})
-  .then(function(d){
-    var state=(d.address&&d.address.state)||'';
-    var sl=state.toLowerCase();
-    var key='kerala';
-    if(sl.indexOf('tamil')>-1)key='tamilnadu';
-    else if(sl.indexOf('karnataka')>-1)key='karnataka';
-    currentRegionKey=key;
-    var label={'kerala':'Kerala','tamilnadu':'Tamil Nadu','karnataka':'Karnataka'};
-    document.getElementById('region-badge').textContent=label[key]||state||'Unknown Region';
-    updateFilterChips();
-  }).catch(function(){});
-}
+            // DOM Elements
+            const scoreDisplay = document.getElementById('score-display');
+            const ghostCountDisplay = document.getElementById('ghost-count');
+            const lastCaughtDisplay = document.getElementById('last-caught');
+            const lastCaughtDot = document.getElementById('last-caught-dot');
+            
+            const bottomSheet = document.getElementById('bottom-sheet');
+            const sheetEmoji = document.getElementById('sheet-emoji');
+            const sheetName = document.getElementById('sheet-name');
+            const sheetType = document.getElementById('sheet-type');
+            const sheetPoints = document.getElementById('sheet-points');
+            const catchBtn = document.getElementById('catch-btn');
+            
+            // Filter Logic
+            const chips = document.querySelectorAll('.chip');
+            chips.forEach(chip => {
+                chip.addEventListener('click', (e) => {
+                    chips.forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                    activeFilter = e.target.dataset.filter;
+                    updateGhostVisibility();
+                });
+            });
 
-function updateFilterChips(){
-  var cats=['all'];
-  var gs=getRegionGhosts(currentRegionKey);
-  gs.forEach(function(g){if(!cats.includes(g.type))cats.push(g.type);});
-  var row=document.getElementById('filter-row');
-  row.innerHTML='';
-  cats.forEach(function(c){
-    var d=document.createElement('div');
-    d.className='chip'+(c==='all'?' active':'');
-    d.dataset.filter=c;
-    d.textContent=c==='all'?'All Records':c;
-    d.addEventListener('click',function(){
-      document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active');});
-      d.classList.add('active');
-      activeFilter=c;
-      updateGhostVisibility();
-    });
-    row.appendChild(d);
-  });
-  activeFilter='all';
-}
+            function updateGhostVisibility() {
+                let visibleCount = 0;
+                spawnedGhosts.forEach(g => {
+                    const shouldShow = activeFilter === 'All Spirits' || g.data.type === activeFilter;
+                    if (shouldShow) {
+                        if (!map.hasLayer(g.marker)) {
+                            map.addLayer(g.marker);
+                        }
+                        visibleCount++;
+                    } else {
+                        if (map.hasLayer(g.marker)) {
+                            map.removeLayer(g.marker);
+                        }
+                    }
+                });
+                ghostCountDisplay.innerText = visibleCount;
+            }
 
-// ── USER LOCATION DOT ──────────────────────────────────────
-var pulseIcon=L.divIcon({className:'ulm',html:'<div class="dot-p"></div><div class="dot-c"></div>',iconSize:[20,20],iconAnchor:[10,10]});
+            // Catch Interaction
+            catchBtn.addEventListener('click', () => {
+                if (activeGhostData && activeGhostMarker) {
+                    score += activeGhostData.points;
+                    scoreDisplay.innerText = score;
+                    
+                    lastCaughtDisplay.innerText = activeGhostData.name;
+                    lastCaughtDot.style.display = 'block';
+                    lastCaughtDot.className = `rarity-dot bg-${activeGhostData.rarity}`;
+                    
+                    map.removeLayer(activeGhostMarker);
+                    
+                    const idx = spawnedGhosts.findIndex(g => g.marker === activeGhostMarker);
+                    if (idx > -1) spawnedGhosts.splice(idx, 1);
+                    
+                    updateGhostVisibility();
+                    bottomSheet.classList.remove('active');
+                    activeGhostData = null;
+                    activeGhostMarker = null;
+                }
+            });
 
-// ── DANGER ZONES ───────────────────────────────────────────
-var dangerZones = [];
-function generateDangerZones(center) { return; 
-    dangerZones.forEach(z => map.removeLayer(z.layer));
-    dangerZones = [];
-    
-    var zoneLabels = ["High Paranormal Activity", "Disturbed Region", "Entity Cluster", "Active Haunting Zone"];
-    var numZones = Math.floor(Math.random() * 3) + 3;
-    
-    for (var i = 0; i < numZones; i++) {
-        var loc = getRandomLatLngAnnulus(center, 500, 3000);
-        var radius = Math.random() * 400 + 200;
-        var label = zoneLabels[Math.floor(Math.random() * zoneLabels.length)];
-        
-        var layer = L.circle(loc, {
-            color: 'transparent',
-            fillColor: '#ff2222',
-            fillOpacity: 0.12,
-            radius: radius,
-            className: 'dz-path',
-            interactive: false
-        }).addTo(map);
-        
-        // Add subtle label if possible (using a small divIcon)
-        var labelIcon = L.divIcon({
-            className: 'dz-label',
-            html: label,
-            iconSize: [200, 20],
-            iconAnchor: [100, 10]
+            map.on('click', () => {
+                bottomSheet.classList.remove('active');
+            });
+
+            // Map Geography Generators
+            function getRandomLatLngAnnulus(center, minRadius, maxRadius) {
+                const R = 6378137;
+                const r = Math.sqrt(Math.random() * (Math.pow(maxRadius, 2) - Math.pow(minRadius, 2)) + Math.pow(minRadius, 2));
+                const theta = Math.random() * 2 * Math.PI;
+                const dLat = r * Math.cos(theta);
+                const dLng = r * Math.sin(theta);
+                const latOffset = dLat / R * (180 / Math.PI);
+                const lngOffset = dLng / (R * Math.cos(Math.PI * center.lat / 180)) * (180 / Math.PI);
+                return L.latLng(center.lat + latOffset, center.lng + lngOffset);
+            }
+
+            function generateDangerZones(center) {
+                const configs = [
+                    { type: 'danger', color: '#ff0000' },
+                    { type: 'warning', color: '#ffa500' },
+                    { type: 'warning', color: '#ffa500' },
+                    { type: 'safe', color: '#4ade80' }
+                ];
+                
+                configs.forEach(cfg => {
+                    const loc = getRandomLatLngAnnulus(center, 200, 1500);
+                    const radius = Math.random() * 200 + 150;
+                    const circle = L.circle(loc, {
+                        radius: radius,
+                        color: 'transparent',
+                        fillColor: cfg.color,
+                        fillOpacity: 0.1,
+                        className: 'atmospheric-zone'
+                    }).addTo(map);
+                    
+                    dangerZones.push({ loc, radius, type: cfg.type });
+                });
+            }
+
+            async function generateGraveyards(center) {
+                try {
+                    // Try to fetch real graveyards from Overpass API
+                    const query = `[out:json];(node["amenity"="grave_yard"](around:2000,${center.lat},${center.lng});node["landuse"="cemetery"](around:2000,${center.lat},${center.lng}););out center;`;
+                    const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+                    
+                    if (data && data.elements && data.elements.length > 0) {
+                        data.elements.slice(0, 4).forEach(el => {
+                            const lat = el.lat || el.center?.lat;
+                            const lon = el.lon || el.center?.lon;
+                            if (lat && lon) plotGraveyard(L.latLng(lat, lon));
+                        });
+                        return;
+                    }
+                } catch(e) {
+                    console.warn("Overpass API failed, generating fallback graveyards.");
+                }
+                
+                // Fallback: Generate 2 fake graveyards
+                for(let i=0; i<2; i++) {
+                    plotGraveyard(getRandomLatLngAnnulus(center, 400, 1200));
+                }
+            }
+
+            function plotGraveyard(latlng) {
+                graveyardLocations.push(latlng);
+                const icon = L.divIcon({
+                    className: 'graveyard-marker',
+                    html: '🪦',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18]
+                });
+                L.marker(latlng, { icon }).addTo(map);
+            }
+
+            // Enhanced Spawning Logic
+            function getSpawnRarity(spawnLoc) {
+                let w = { 'common': 40, 'uncommon': 25, 'rare': 18, 'epic': 10, 'legendary': 5, 'mythic': 2 };
+                
+                // Boosts based on Danger Zones
+                dangerZones.forEach(z => {
+                    if (spawnLoc.distanceTo(z.loc) <= z.radius) {
+                        if (z.type === 'danger') { w.legendary += 15; w.mythic += 5; }
+                        else if (z.type === 'safe') { w.rare -= 5; w.epic -= 5; w.common += 10; }
+                    }
+                });
+
+                // Boosts based on Graveyards
+                graveyardLocations.forEach(g => {
+                    if (spawnLoc.distanceTo(g) <= 150 && isNight) {
+                        w.epic += 10; w.legendary += 20; w.mythic += 10;
+                    }
+                });
+
+                // Boosts based on Time
+                if (hour >= 23 || hour < 3) {
+                    w.mythic += 5; w.legendary += 5;
+                }
+
+                const rand = Math.random() * Object.values(w).reduce((a,b)=>a+b, 0);
+                let cumulative = 0;
+                for (const [rarity, weight] of Object.entries(w)) {
+                    cumulative += weight;
+                    if (rand <= cumulative) return rarity;
+                }
+                return 'common';
+            }
+
+            function spawnSingleGhost(centerLatLng) {
+                if (spawnedGhosts.length >= maxGhosts) return;
+
+                const location = getRandomLatLngAnnulus(centerLatLng, 150, 800);
+                const rarity = getSpawnRarity(location);
+                const filtered = ghostsList.filter(g => g.rarity === rarity);
+                const ghost = filtered[Math.floor(Math.random() * filtered.length)];
+                
+                const daytimeClass = isNight ? '' : 'daytime';
+                const anchorSize = ghost.rarity === 'legendary' || ghost.rarity === 'mythic' ? 30 : 26;
+                const iconSize = ghost.rarity === 'legendary' || ghost.rarity === 'mythic' ? 60 : 52;
+
+                const ghostIcon = L.divIcon({
+                    className: `ghost-marker rarity-${ghost.rarity} ${daytimeClass}`,
+                    html: ghost.emoji,
+                    iconSize: [iconSize, iconSize],
+                    iconAnchor: [anchorSize, anchorSize]
+                });
+
+                const marker = L.marker(location, { icon: ghostIcon });
+                
+                spawnedGhosts.push({ marker: marker, data: ghost });
+                updateGhostVisibility();
+
+                marker.on('click', (e) => {
+                    L.DomEvent.stopPropagation(e);
+                    activeGhostData = ghost;
+                    activeGhostMarker = marker;
+                    
+                    sheetEmoji.innerText = ghost.emoji;
+                    sheetName.innerText = ghost.name;
+                    sheetType.innerText = `[ ${ghost.type} ]  ·  ${ghost.rarity}`;
+                    sheetType.className = `color-${ghost.rarity}`;
+                    sheetPoints.innerText = `+${ghost.points} PTS`;
+                    
+                    bottomSheet.classList.add('active');
+                });
+            }
+
+            let mapInitialized = false;
+
+            function onLocationFound(e) {
+                currentLatLng = e.latlng;
+                
+                if (!userMarker) {
+                    userMarker = L.marker(e.latlng, { icon: pulsingIcon }).addTo(map);
+                } else {
+                    userMarker.setLatLng(e.latlng);
+                }
+                
+                map.setView(e.latlng, 16); // Slightly zoomed out to see zones
+
+                if (!mapInitialized) {
+                    mapInitialized = true;
+                    generateDangerZones(e.latlng);
+                    generateGraveyards(e.latlng).then(() => {
+                        // Spawn ghosts after map elements are loaded
+                        for (let i = 0; i < maxGhosts; i++) {
+                            spawnSingleGhost(e.latlng);
+                        }
+                        setInterval(() => {
+                            if (currentLatLng) spawnSingleGhost(currentLatLng);
+                        }, spawnIntervalMs);
+                    });
+                }
+            }
+
+            function onLocationError(e) {
+                console.error("Location access error:", e.message);
+            }
+
+            map.on('locationfound', onLocationFound);
+            map.on('locationerror', onLocationError);
+            map.locate({ setView: true, maxZoom: 16, watch: true, enableHighAccuracy: true });
         });
-        L.marker(loc, { icon: labelIcon, interactive: false }).addTo(map);
-        
-        dangerZones.push({ loc: loc, radius: radius, layer: layer });
-    }
-}
-
-function getRandomLatLngAnnulus(center, minRadius, maxRadius) {
-    const R = 6378137;
-    const r = Math.sqrt(Math.random() * (Math.pow(maxRadius, 2) - Math.pow(minRadius, 2)) + Math.pow(minRadius, 2));
-    const theta = Math.random() * 2 * Math.PI;
-    const dLat = r * Math.cos(theta);
-    const dLng = r * Math.sin(theta);
-    const latOffset = dLat / R * (180 / Math.PI);
-    const lngOffset = dLng / (R * Math.cos(Math.PI * center.lat / 180)) * (180 / Math.PI);
-    return L.latLng(center.lat + latOffset, center.lng + lngOffset);
-}
-
-// ── GHOST VISIBILITY ───────────────────────────────────────
-function updateGhostVisibility(){
-  var count=0;
-  spawnedGhosts.forEach(function(g){
-    var show=activeFilter==='all'||g.data.type===activeFilter;
-    if(show){if(!map.hasLayer(g.marker))map.addLayer(g.marker);count++;}
-    else{if(map.hasLayer(g.marker))map.removeLayer(g.marker);}
-  });
-  document.getElementById('ghost-count').textContent=count;
-}
-
-// ── SPAWN GHOST ────────────────────────────────────────────
-function getEntityColor(name){
-  var colors = {
-    'Yakshi': '#B84A62',
-    'Odiyan': '#A96A32',
-    'Neeli': '#4A78B8',
-    'Gulikan': '#5C5C66',
-    'Karinkali': '#4B3A5A',
-    'Kutti Chathan': '#8A2E24',
-    'Chudala': '#4B4F7A',
-    'Brahmarakshas': '#701C1C',
-    'Madan Thampuran': '#8C6B2E',
-    'Mohini Pey': '#9B596E',
-    'Sudalai Madan': '#8B4B2E',
-    'Panjurli': '#5B5A3B',
-    'Kallurti': '#5A4678'
-  };
-  return colors[name] || '#8e9aaf';
-}
-
-function trySpawnGhost(center){
-  if(spawnedGhosts.length>=1) {
-      var dist = map.distance(center, spawnedGhosts[0].marker.getLatLng());
-      if (dist < 10000) return; 
-      else {
-          map.removeLayer(spawnedGhosts[0].marker);
-          spawnedGhosts = [];
-      }
-  }
-
-  var gs = getRegionGhosts(currentRegionKey);
-  var inZone = false;
-  var spawnLoc = null;
-  
-  if (dangerZones.length > 0 && Math.random() < 0.6) {
-      var zone = dangerZones[Math.floor(Math.random() * dangerZones.length)];
-      spawnLoc = getRandomLatLngAnnulus(zone.loc, 0, zone.radius);
-      inZone = true;
-  } else {
-      spawnLoc = getRandomLatLngAnnulus(center, 1000, 3000);
-  }
-
-  var filteredGs = gs;
-  if (inZone) {
-      filteredGs = gs.filter(g => ['legendary', 'mythic', 'epic'].includes(g.rarity));
-      if (filteredGs.length === 0) filteredGs = gs;
-  } else {
-      filteredGs = gs.filter(g => ['common', 'uncommon', 'rare'].includes(g.rarity));
-      if (filteredGs.length === 0) filteredGs = gs;
-  }
-  
-  var ghost = filteredGs[Math.floor(Math.random() * filteredGs.length)];
-  var color = getEntityColor(ghost.name);
-  
-  var icon = L.divIcon({
-      className: 'ghost-outer',
-      html: `<div class="ghost-inner" style="background:${color}; box-shadow:0 0 12px ${color}90;"></div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
-  });
-
-  var marker = L.marker(spawnLoc, { icon: icon });
-  spawnedGhosts.push({ marker: marker, data: ghost });
-  
-  marker.on('click', function(e){
-    L.DomEvent.stopPropagation(e);
-    openSheet(ghost, spawnLoc);
-  });
-  
-  updateGhostVisibility();
-  
-  setTimeout(function(){
-    if(spawnedGhosts[0] && spawnedGhosts[0].marker === marker) {
-        if(map.hasLayer(marker)) map.removeLayer(marker);
-        spawnedGhosts = [];
-        updateGhostVisibility();
-        setTimeout(function(){if(currentLatLng) trySpawnGhost(currentLatLng);}, isNight ? 15000 : 45000);
-    }
-  }, isNight ? 180000 : 300000);
-}
-
-// ── SHEET ──────────────────────────────────────────────────
-function openSheet(ghost,loc){
-  activeGhost=ghost;
-  markDiscovered(ghost.id); 
-  
-  var color = getEntityColor(ghost.name);
-  document.getElementById('sh-name').textContent=ghost.name;
-  document.getElementById('sh-tag').textContent=ghost.type+' Entity • '+ghost.rarity;
-  document.getElementById('sh-region').textContent=({'kerala':'Kerala','tamilnadu':'Tamil Nadu','karnataka':'Karnataka'})[currentRegionKey]||'—';
-  document.getElementById('sh-intensity').textContent=ghost.intensity;
-  document.getElementById('sh-haunt').textContent=ghost.haunt;
-  document.getElementById('sh-back').textContent=ghost.backstory;
-  document.getElementById('sh-origin').textContent=ghost.origin;
-  document.getElementById('sh-sighting').textContent=ghost.sighting;
-  
-  var dot = document.getElementById('sh-dot');
-  dot.className = 'ghost-inner';
-  dot.style.background = color;
-  dot.style.boxShadow = `0 0 15px ${color}`;
-  
-  document.getElementById('sheet').classList.add('open');
-}
-
-// ── ARCHIVE LOGIC ──────────────────────────────────────────
-function toggleArchive(){
-  var s = document.getElementById('archive-sheet');
-  var o = document.getElementById('archive-overlay');
-  var isOpen = s.classList.toggle('open');
-  if(o) o.classList.toggle('open', isOpen);
-  if(isOpen) renderArchive();
-  // Ensure map adjusts if layout shifted, though absolute/fixed usually doesn't need this
-  // but it's good practice for mobile viewports
-  if(typeof map !== 'undefined' && map) setTimeout(function(){ map.invalidateSize(); }, 400);
-}
-
-document.getElementById('archive-btn').addEventListener('click', function(e){
-  e.preventDefault();
-  toggleArchive();
-});
-
-var arcClose = document.getElementById('archive-close-btn');
-if(arcClose) arcClose.addEventListener('click', toggleArchive);
-
-var arcOver = document.getElementById('archive-overlay');
-if(arcOver) arcOver.addEventListener('click', toggleArchive);
-
-
-function renderArchive(){
-  var list = document.getElementById('archive-list');
-  list.innerHTML = '';
-  
-  var regions = {
-    'kerala': 'Kerala Folklore Division',
-    'tamilnadu': 'Tamil Nadu Records',
-    'karnataka': 'Karnataka Intelligence'
-  };
-
-  Object.keys(regions).forEach(rk => {
-    var sec = document.createElement('div');
-    sec.className = 'archive-region-sec';
-    sec.innerHTML = `<h4>${regions[rk]}</h4>`;
-    
-    var regionGhosts = LORE[rk] || [];
-    regionGhosts.forEach(g => {
-      var isDisc = discoveredGhosts.includes(g.id);
-      var color = getEntityColor(g.name);
-      var card = document.createElement('div');
-      card.className = 'archive-card' + (isDisc ? '' : ' locked');
-      card.style.setProperty('--gc', color);
-      
-      var summaryText = isDisc ? (g.backstory.substring(0, 85) + '...') : 'Access restricted. Entity data encrypted.';
-      
-      var html = `
-        <div class="accent"></div>
-        <div class="glow"></div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div class="r-tag" style="border:1px solid ${color}50; color:${color}; background:${color}10;">${isDisc ? g.rarity.toUpperCase() : 'CLASSIFIED'}</div>
-          ${isDisc ? `<div style="font-size:0.6rem; color:${color}; font-weight:800; opacity:0.6;">THREAT: ${g.threat.toUpperCase()}</div>` : ''}
-        </div>
-        <h3>${isDisc ? g.name : 'Classified Entity'}</h3>
-        <div class="summary">${summaryText}</div>
-        <div class="footer">
-          <span>${isDisc ? g.classification : 'Unknown Origin'}</span>
-          <span>${isDisc ? 'Threat Level: ' + g.threat : 'Threat: Restricted'}</span>
-        </div>
-      `;
-      card.innerHTML = html;
-      if(isDisc){
-        card.addEventListener('click', function(){ openDetail(g); });
-      }
-      sec.appendChild(card);
-    });
-    list.appendChild(sec);
-  });
-}
-
-function openDetail(g){
-  var body = document.getElementById('detail-body');
-  var color = getEntityColor(g.name);
-  
-  body.innerHTML = `
-    <div class="detail-hero" style="--gc:${color}">
-      <div style="position:absolute; inset:0; background:linear-gradient(transparent, #080808); z-index:1;"></div>
-      <div style="position:relative; z-index:2;">
-        <div class="r-tag" style="background:${color}22; color:${color}; margin-bottom:12px; border:1px solid ${color}40">${g.rarity.toUpperCase()} RECORD</div>
-        <h1 style="font-size:2.8rem; font-weight:900; margin:0; letter-spacing:-1px; line-height:1;">${g.name}</h1>
-        <div style="display:flex; gap:15px; font-size:0.7rem; color:rgba(255,255,255,0.4); font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:15px;">
-          <span>${g.classification}</span>
-          <span>•</span>
-          <span>THREAT: ${g.threat}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="detail-content">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:40px;">
-        <div class="stat-item">
-          <div style="font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Window</div>
-          <div style="font-size:0.85rem; font-weight:600;">${g.time}</div>
-        </div>
-        <div class="stat-item">
-          <div style="font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Intensity</div>
-          <div style="font-size:0.85rem; font-weight:600; color:${color}">${g.intensity}</div>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <h4>Full Lore & Behavior</h4>
-        <p>${g.backstory}</p>
-      </div>
-
-      <div class="detail-section">
-        <h4>Historical Origin</h4>
-        <p>${g.origin}</p>
-      </div>
-
-      <div class="detail-section">
-        <h4>Paranormal Context</h4>
-        <p>${g.historical}</p>
-      </div>
-
-      <div class="detail-section">
-        <h4>Recent Intelligence</h4>
-        <div class="stat-item" style="border-left:3px solid ${color}">
-          <div style="font-size:0.6rem; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Last Reported Sighting</div>
-          <div style="font-size:0.9rem; line-height:1.5; opacity:0.8;">${g.sighting}</div>
-        </div>
-      </div>
-    </div>
-  `;
-  document.getElementById('detail-sheet').classList.add('open');
-}
-
-function closeDetail(){
-  document.getElementById('detail-sheet').classList.remove('open');
-}
-
-function toggleAbout(){
-  document.getElementById('about-sheet').classList.toggle('open');
-}
-
-document.getElementById('about-trigger').addEventListener('click', toggleAbout);
-document.getElementById('about-close-btn').addEventListener('click', toggleAbout);
-
-// Attach listener to detail close button (it has a class archive-close)
-document.querySelector('#detail-sheet .archive-close').addEventListener('click', closeDetail);
-
-function markDiscovered(id){
-  if(!discoveredGhosts.includes(id)){
-    discoveredGhosts.push(id);
-    try { localStorage.setItem('neeli_archive', JSON.stringify(discoveredGhosts)); } catch (e) {}
-  }
-}
-document.getElementById('sheet-close').addEventListener('click',function(){document.getElementById('sheet').classList.remove('open');});
-map.on('click',function(){document.getElementById('sheet').classList.remove('open');});
-
-// ── GRAVEYARDS ─────────────────────────────────────────────
-function loadGraveyards(lat,lng){
-  graveyardLayers.forEach(function(l){map.removeLayer(l);});
-  graveyardLayers=[];
-  var q='[out:json];nwr["landuse"="cemetery"](around:3000,'+lat+','+lng+');out center;';
-  fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q})
-  .then(function(r){return r.json();})
-  .then(function(d){
-    var gi=L.divIcon({className:'grave-outer',html:'<div class="grave-inner">✝</div>',iconSize:[22,22],iconAnchor:[11,11]});
-    d.elements.forEach(function(el){
-      var lt=el.lat||( el.center&&el.center.lat);
-      var ln=el.lon||(el.center&&el.center.lon);
-      if(!lt||!ln)return;
-      var m=L.marker([lt,ln],{icon:gi,interactive:false}).addTo(map);
-      L.circle([lt,ln],{color:'transparent',fillColor:'#666',fillOpacity:.07,radius:120,interactive:false,className:'dz-path'}).addTo(map);
-      graveyardLayers.push(m);
-    });
-  }).catch(function(){});
-}
-
-// ── INIT GAMEPLAY ──────────────────────────────────────────
-function initMap(latlng){
-  if(mapInitDone)return;
-  mapInitDone=true;
-  currentLatLng=latlng;
-  detectRegion(latlng.lat,latlng.lng);
-  generateDangerZones(latlng);
-  loadGraveyards(latlng.lat,latlng.lng);
-  setTimeout(function(){trySpawnGhost(latlng);},1500);
-}
-
-// ── LOCATION ───────────────────────────────────────────────
-function startLocate(){
-  var btn = document.getElementById('perm-allow-btn');
-  if(btn){ btn.classList.add('loading'); btn.disabled = true; }
-
-  if(!navigator.geolocation) {
-    showPermOverlay(true);
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
-      document.getElementById('perm-overlay').style.display = 'none';
-
-      var ll = L.latLng(pos.coords.latitude, pos.coords.longitude);
-      currentLatLng = ll;
-
-      if(!userMarker){
-        userMarker = L.marker(ll, {icon:pulseIcon}).addTo(map);
-      } else {
-        userMarker.setLatLng(ll);
-      }
-
-      map.flyTo(ll, 15, {duration: 2, easeLinearity: 0.25});
-      initMap(ll);
-
-      map.locate({watch:true, enableHighAccuracy:true});
-      map.on('locationfound', function(e){
-        currentLatLng = e.latlng;
-        if(userMarker) userMarker.setLatLng(e.latlng);
-      });
-    },
-    function(err){
-      if(btn){ btn.classList.remove('loading'); btn.disabled = false; }
-      // Show the fallback search inline — no separate error popup
-      showPermOverlay(true);
-    },
-    {timeout: 10000, enableHighAccuracy: true}
-  );
-}
-
-function showPermOverlay(showFallback){
-  var overlay = document.getElementById('perm-overlay');
-  overlay.style.display = 'flex';
-  if(showFallback){
-    var fallback = document.getElementById('perm-fallback');
-    if(fallback) fallback.style.display = 'block';
-    var input = document.getElementById('perm-fallback-input');
-    if(input) setTimeout(function(){ input.focus(); }, 300);
-  }
-}
-
-// ── INLINE FALLBACK SEARCH ─────────────────────────────────
-(function(){
-  var fbInput = document.getElementById('perm-fallback-input');
-  var fbResults = document.getElementById('perm-fallback-results');
-  if(!fbInput) return;
-  var fbTimer = null;
-  fbInput.addEventListener('input', function(){
-    clearTimeout(fbTimer);
-    var q = fbInput.value.trim();
-    if(q.length < 3){ fbResults.style.display='none'; return; }
-    fbTimer = setTimeout(function(){
-      fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=4')
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        fbResults.innerHTML = '';
-        if(!data.length){ fbResults.style.display='none'; return; }
-        data.forEach(function(item){
-          var d = document.createElement('div');
-          d.className = 'perm-result-item';
-          d.textContent = item.display_name;
-          d.addEventListener('click', function(){
-            document.getElementById('perm-overlay').style.display = 'none';
-            var ll = L.latLng(parseFloat(item.lat), parseFloat(item.lon));
-            currentLatLng = ll;
-            mapInitDone = false;
-            spawnedGhosts.forEach(function(g){ if(map.hasLayer(g.marker)) map.removeLayer(g.marker); });
-            spawnedGhosts = [];
-            map.flyTo(ll, 14, {duration: 1.5});
-            setTimeout(function(){ initMap(ll); }, 1800);
-          });
-          fbResults.appendChild(d);
-        });
-        fbResults.style.display = 'block';
-      }).catch(function(){});
-    }, 400);
-  });
-})();
-
-function retryLocation(){
-  document.getElementById('perm-fallback').style.display = 'none';
-  startLocate();
-}
-
-function openManualSearch(){
-  showPermOverlay(true);
-}
-
-// ── SEARCH ─────────────────────────────────────────────────
-var searchInput=document.getElementById('search-input');
-var searchResults=document.getElementById('search-results');
-var searchTimer=null;
-searchInput.addEventListener('input',function(){
-  clearTimeout(searchTimer);
-  var q=searchInput.value.trim();
-  if(q.length<3){searchResults.style.display='none';return;}
-  searchTimer=setTimeout(function(){
-    fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=4')
-    .then(function(r){return r.json();})
-    .then(function(data){
-      searchResults.innerHTML='';
-      if(!data.length){searchResults.style.display='none';return;}
-      data.forEach(function(item){
-        var div=document.createElement('div');
-        div.className='search-result-item';
-        div.textContent=item.display_name;
-        div.addEventListener('click',function(){
-          searchInput.value='';
-          searchResults.style.display='none';
-          var ll=L.latLng(parseFloat(item.lat),parseFloat(item.lon));
-          document.getElementById('perm-overlay').style.display='none';
-          map.flyTo(ll,14,{duration:1.5});
-          currentLatLng=ll;
-          mapInitDone=false;
-          spawnedGhosts.forEach(function(g){if(map.hasLayer(g.marker))map.removeLayer(g.marker);});
-          spawnedGhosts=[];
-          setTimeout(function(){initMap(ll);},2000);
-        });
-        searchResults.appendChild(div);
-      });
-      searchResults.style.display='block';
-    }).catch(function(){});
-  },500);
-});
-document.addEventListener('click',function(e){if(!e.target.closest('#search-wrap'))searchResults.style.display='none';});
-
-// ── PERMISSION BUTTON ──────────────────────────────────────
-document.getElementById('perm-allow-btn').addEventListener('click', startLocate);
-
-
-// ── REFRESH BUTTON ─────────────────────────────────────────
-document.getElementById('refresh-btn').addEventListener('click',function(){
-  location.reload();
-});
-
-// ── AUTO-START ─────────────────────────────────────────────
-startLocate();
-
-function toggleAbout(){
-  document.getElementById('about-sheet').classList.toggle('open');
-}
-
-document.getElementById('about-trigger').addEventListener('click', toggleAbout);
-document.getElementById('about-btn-top').addEventListener('click', toggleAbout);
-document.getElementById('about-close-btn').addEventListener('click', toggleAbout);
-
-window.startLocate = startLocate;
-window.retryLocation = retryLocation;
-window.openManualSearch = openManualSearch;
-window.toggleArchive = toggleArchive;
-window.toggleAbout = toggleAbout;
-window.closeDetail = closeDetail;
-
-})();
-</script>
+    </script>
 </body>
 </html>
-
