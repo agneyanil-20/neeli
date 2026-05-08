@@ -115,39 +115,45 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 #perm-allow-btn.loading .loader{display:inline-block}
 #perm-allow-btn.loading .btn-text{display:none}
 
-/* GHOST MARKERS (Glowing Dots) */
 .ghost-outer{background:transparent;border:none}
 .ghost-inner{
     width: 12px;
     height: 12px;
     border-radius: 50%;
     animation: floatG 4s ease-in-out infinite, pulseMarker 2s ease-in-out infinite;
-    box-shadow: 0 0 15px currentColor;
-    background-color: currentColor;
+    /* Base styles removed to allow full inline control */
 }
-
-.rarity-common { color: #888888; }
-.rarity-uncommon { color: #44aa44; }
-.rarity-rare { color: #4488ff; }
-.rarity-epic { color: #aa44ff; }
-.rarity-legendary { color: #ffaa00; }
-.rarity-mythic { color: #ff2222; }
 
 @keyframes floatG{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes pulseMarker{0%,100%{opacity: 0.6; transform: scale(0.9);} 50%{opacity: 1; transform: scale(1.1);}}
 
-/* GRAVEYARD MARKERS */
-.grave-outer{background:transparent;border:none}
-.grave-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.35);text-shadow:0 0 8px rgba(255,255,255,.15)}
+@keyframes floatG{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes pulseMarker{0%,100%{opacity: 0.6; transform: scale(0.9);} 50%{opacity: 1; transform: scale(1.1);}}
 
-/* BOTTOM SHEET */
-#sheet{position:fixed;bottom:-100%;left:0;width:100%;max-height:80vh;background:rgba(6,6,6,.92);backdrop-filter:blur(45px);-webkit-backdrop-filter:blur(45px);border-top:1px solid var(--border);border-radius:28px 28px 0 0;padding:28px 22px calc(28px + env(safe-area-inset-bottom));z-index:2000;transition:bottom .5s cubic-bezier(.2,.8,.2,1);overflow-y:auto;box-shadow:0 -16px 50px rgba(0,0,0,.9)}
-#sheet.open{bottom:0}
-#sheet-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.08);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.sh-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:26px;padding-right:36px}
-.sh-icon{font-size:38px;opacity:.75;flex-shrink:0}
-.sh-name{font-size:22px;font-weight:800;letter-spacing:.02em;margin-bottom:5px}
-.sh-tag{font-size:10px;text-transform:uppercase;letter-spacing:.2em;font-weight:700;color:var(--txt2)}
+/* HOTSPOT MARKERS */
+.hotspot-outer{background:transparent;border:none}
+.hotspot-inner{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    animation: pulseHotspot 3s ease-in-out infinite;
+}
+@keyframes pulseHotspot{
+  0%,100%{transform:scale(1); opacity:0.6; box-shadow:0 0 10px var(--gc);}
+  50%{transform:scale(1.2); opacity:1; box-shadow:0 0 25px var(--gc);}
+}
+
+/* HOTSPOT DETAIL SHEET */
+#hotspot-sheet{position:fixed;bottom:-100%;left:0;width:100%;max-height:85vh;background:rgba(6,6,6,.95);backdrop-filter:blur(50px);-webkit-backdrop-filter:blur(50px);border-top:1px solid var(--border);border-radius:32px 32px 0 0;padding:32px 24px;z-index:3000;transition:bottom .6s cubic-bezier(.16,1,.3,1);overflow-y:auto;box-shadow:0 -20px 60px rgba(0,0,0,0.95)}
+#hotspot-sheet.open{bottom:0}
+.hs-label{font-size:10px;text-transform:uppercase;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:8px;font-weight:800;}
+.hs-value{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.6;margin-bottom:24px;}
+.hs-threat{display:inline-block;padding:4px 12px;border-radius:4px;font-size:10px;font-weight:900;letter-spacing:1px;margin-top:4px;}
+
+/* MAP DIMMING */
+#map-dimmer{position:fixed;inset:0;background:rgba(0,0,0,0.4);opacity:0;pointer-events:none;z-index:1500;transition:opacity 0.5s ease;}
+#map-dimmer.active{opacity:1;pointer-events:auto;}
 .sh-meta{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
 .meta-blk{display:flex;flex-direction:column;gap:5px}
 .meta-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--txt2);font-weight:700}
@@ -403,6 +409,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   </div>
 </div>
 
+<div id="map-dimmer"></div>
+
 <div id="top-bar" class="glass">
   <div style="display:flex; align-items:center;">
     <div id="archive-btn" title="Folklore Archive">
@@ -421,6 +429,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 </div>
 
 <div id="status-banner" class="glass"></div>
+<div id="hotspot-sheet">
+  <div class="archive-close" id="hs-close-btn" style="position:absolute; top:24px; right:24px;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  </div>
+  <div id="hs-content"></div>
+</div>
 
 <div id="filter-row">
   <div class="chip active" data-filter="all">All Records</div>
@@ -666,26 +680,239 @@ function detectRegion(lat,lng){
   }).catch(function(){});
 }
 
-function updateFilterChips(){
-  var cats=['all'];
-  var gs=getRegionGhosts(currentRegionKey);
-  gs.forEach(function(g){if(!cats.includes(g.type))cats.push(g.type);});
-  var row=document.getElementById('filter-row');
-  row.innerHTML='';
-  cats.forEach(function(c){
-    var d=document.createElement('div');
-    d.className='chip'+(c==='all'?' active':'');
-    d.dataset.filter=c;
-    d.textContent=c==='all'?'All Records':c;
-    d.addEventListener('click',function(){
-      document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active');});
-      d.classList.add('active');
-      activeFilter=c;
-      updateGhostVisibility();
+var currentFilters = {
+  entity: 'all',
+  threat: 'all',
+  type: 'all'
+};
+
+var HOTSPOTS = [
+  {
+    id: 'hs_neeli_path',
+    name: 'Kalliyankattu Region',
+    lat: 9.2648, lng: 76.7870,
+    entity: 'Neeli',
+    region: 'Pathanamthitta, Kerala',
+    type: 'Historical Site',
+    intensity: 'Extreme',
+    threat: 'High',
+    report: 'Local folklore describes repeated sightings of a wandering female spirit near isolated travel routes after midnight. Witnesses report sudden drops in temperature and spectral laughter.',
+    background: 'The legend is associated with betrayal, violent death and recurring paranormal stories passed through generations in the Kalliyankad region.',
+    hours: '11:30 PM — 3:00 AM',
+    graveyard: 'Nearby ancient burial grounds within 2km radius influence activity peaks.',
+    lastActivity: 'Reported 4 days ago near the forest perimeter.'
+  },
+  {
+    id: 'hs_yakshi_way',
+    name: 'Yakshi Folklore Routes',
+    lat: 11.6854, lng: 76.1320,
+    entity: 'Yakshi',
+    region: 'Wayanad, Kerala',
+    type: 'Folklore Route',
+    intensity: 'High',
+    threat: 'Moderate',
+    report: 'Frequent reports of a female entity appearing near palm trees on misty nights. Travelers often report disorientation and "phantom hitchhikers" on the Wayanad ghat roads.',
+    background: 'Ancient tribal legends speak of nature spirits that manifest as beautiful women to protect the deep forests from intruders.',
+    hours: '10:00 PM — 2:30 AM',
+    graveyard: 'Isolated tribal burial sites scattered across the valley.',
+    lastActivity: 'Anomaly detected near Lakkidi viewpoint last night.'
+  },
+  {
+    id: 'hs_odiyan_north',
+    name: 'Odiyan Sighting Zones',
+    lat: 10.7867, lng: 76.6547,
+    entity: 'Odiyan',
+    region: 'Palakkad, Kerala',
+    type: 'Activity Zone',
+    intensity: 'Severe',
+    threat: 'Critical',
+    report: 'Sudden animal-like shadows manifesting near agrarian fields. Reports of large black shapes changing forms near the shadow of the Western Ghats.',
+    background: 'The Odiyan clan is legendary for their shapeshifting abilities and dark ritualistic practices documented in Palakkad folklore for centuries.',
+    hours: '12:00 AM — 4:00 AM',
+    graveyard: 'High influence from nearby family cremation grounds (Tharavadu).',
+    lastActivity: 'Field intelligence reports high activity during recent new moon.'
+  },
+  {
+    id: 'hs_chathan_thrissur',
+    name: 'Chathan Worship Clusters',
+    lat: 10.4285, lng: 76.1437,
+    entity: 'Kutti Chathan',
+    region: 'Thrissur, Kerala',
+    type: 'Historical Site',
+    intensity: 'Moderate',
+    threat: 'Low',
+    report: 'Poltergeist activity reported in several rural households. Stones falling from ceilings and household objects moving without physical cause.',
+    background: 'Peringottukara is historically known for Chathan Seva rituals and ancestral spiritual guardianship.',
+    hours: 'Nighttime (Sunset — Sunrise)',
+    graveyard: 'Connected to local ritualistic temples and ancestral shrines.',
+    lastActivity: 'Persistent activity reported in the central village sector.'
+  },
+  {
+    id: 'hs_brahmarakshas_alap',
+    name: 'Brahmarakshas Temple Zone',
+    lat: 9.4981, lng: 76.3388,
+    entity: 'Brahmarakshas',
+    region: 'Alappuzha, Kerala',
+    type: 'Temple Folklore Zone',
+    intensity: 'High',
+    threat: 'Moderate',
+    report: 'Spectres of robed figures seen near the temple ponds. Locals avoid the temple surroundings after evening deeparadhana.',
+    background: 'Brahmarakshas are spirits of learned scholars who met untimely deaths; they are often worshipped as guardian deities to appease their wrath.',
+    hours: '8:00 PM — 1:00 AM',
+    graveyard: 'Direct proximity to temple cremation sectors.',
+    lastActivity: 'Subtle energy spikes detected near the southern pond.'
+  },
+  {
+    id: 'hs_gulikan_malabar',
+    name: 'Gulikan Boundary Shrines',
+    lat: 11.2588, lng: 75.7804,
+    entity: 'Gulikan',
+    region: 'Kozhikode, Kerala',
+    type: 'Activity Zone',
+    intensity: 'Extreme',
+    threat: 'High',
+    report: 'Tall, shadowy figures reported near village boundaries during Theyyam season. Ancient stones marking the territory of Gulikan found moved.',
+    background: 'Gulikan is the lord of time and death in North Malabar folklore, often seen as a towering figure guarding the transition between worlds.',
+    hours: 'Dusk — Dawn',
+    graveyard: 'Directly linked to ancient community burial grounds.',
+    lastActivity: 'Energy fluctuation noted near the sacred grove last Friday.'
+  },
+  {
+    id: 'hs_chudala_cochin',
+    name: 'Chudala Cremation Zones',
+    lat: 10.0159, lng: 76.3419,
+    entity: 'Chudala',
+    region: 'Ernakulam, Kerala',
+    type: 'Activity Zone',
+    intensity: 'Severe',
+    threat: 'High',
+    report: 'Manifestations of blue flames and formless shadows near coastal cremation sites. Witnesses report hearing rhythmic drumming from the mist.',
+    background: 'Chudala spirits are guardians and scavengers of the cremation grounds, deeply tied to the coastal death rituals of central Kerala.',
+    hours: '1:00 AM — 4:30 AM',
+    graveyard: 'Centrally located within coastal public cremation sectors.',
+    lastActivity: 'Atmospheric pressure drop detected near the sea wall burial sites.'
+  }
+];
+
+var hotspotMarkers = [];
+
+function renderHotspots(){
+  hotspotMarkers.forEach(m => map.removeLayer(m));
+  hotspotMarkers = [];
+  
+  HOTSPOTS.forEach(hs => {
+    var color = getEntityColor(hs.entity);
+    var icon = L.divIcon({
+      className: 'hotspot-outer',
+      html: `<div class="hotspot-inner" style="--gc:${color}; background:${color}30; border-color:${color}60;"></div>`,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10]
     });
-    row.appendChild(d);
+    
+    var m = L.marker([hs.lat, hs.lng], { icon: icon }).addTo(map);
+    m.on('click', function(e){
+      L.DomEvent.stopPropagation(e);
+      openHotspotDetail(hs);
+    });
+    hotspotMarkers.push(m);
   });
-  activeFilter='all';
+}
+
+function openHotspotDetail(hs){
+  var content = document.getElementById('hs-content');
+  var color = getEntityColor(hs.entity);
+  
+  content.innerHTML = `
+    <div style="margin-top:10px;">
+      <div class="hs-threat" style="background:${color}20; color:${color}; border:1px solid ${color}40;">${hs.threat.toUpperCase()} THREAT</div>
+      <h2 style="font-size:1.8rem; margin:12px 0 4px; font-weight:800;">${hs.name}</h2>
+      <div style="font-size:0.75rem; color:rgba(255,255,255,0.4); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:30px;">${hs.region}</div>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;">
+        <div>
+          <div class="hs-label">Entity Classification</div>
+          <div style="font-size:0.9rem; font-weight:600; color:${color}">${hs.entity}</div>
+        </div>
+        <div>
+          <div class="hs-label">Intensity Level</div>
+          <div style="font-size:0.9rem; font-weight:600;">${hs.intensity}</div>
+        </div>
+      </div>
+
+      <div class="hs-label">Incident Report</div>
+      <div class="hs-value">${hs.report}</div>
+
+      <div class="hs-label">Historical Background</div>
+      <div class="hs-value">${hs.background}</div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px;">
+        <div>
+          <div class="hs-label">Active Window</div>
+          <div style="font-size:0.85rem; font-weight:600;">${hs.hours}</div>
+        </div>
+        <div>
+          <div class="hs-label">Graveyard Influence</div>
+          <div style="font-size:0.85rem; font-weight:600; line-height:1.4;">${hs.graveyard}</div>
+        </div>
+      </div>
+
+      <div class="hs-label">Intelligence Status</div>
+      <div class="hs-value" style="font-style:italic; opacity:0.6;">${hs.lastActivity}</div>
+    </div>
+  `;
+  
+  document.getElementById('map-dimmer').classList.add('active');
+  document.getElementById('hotspot-sheet').classList.add('open');
+}
+
+function closeHotspotDetail(){
+  document.getElementById('hotspot-sheet').classList.remove('open');
+  document.getElementById('map-dimmer').classList.remove('active');
+}
+
+document.getElementById('hs-close-btn').addEventListener('click', closeHotspotDetail);
+document.getElementById('map-dimmer').addEventListener('click', closeHotspotDetail);
+
+function updateFilterChips(){
+  var row = document.getElementById('filter-row');
+  row.innerHTML = '';
+  
+  var filterGroups = [
+    { id: 'entity', label: 'Entities', options: ['all', 'Yakshi', 'Odiyan', 'Neeli', 'Kutti Chathan', 'Brahmarakshas'] },
+    { id: 'threat', label: 'Threat', options: ['all', 'Low', 'Moderate', 'High', 'Critical'] },
+    { id: 'type', label: 'Type', options: ['all', 'Historical Site', 'Activity Zone', 'Temple Folklore Zone'] }
+  ];
+
+  filterGroups.forEach(group => {
+    group.options.forEach(opt => {
+      var d = document.createElement('div');
+      d.className = 'chip' + (currentFilters[group.id] === opt ? ' active' : '');
+      d.dataset.filter = opt;
+      d.dataset.group = group.id;
+      d.textContent = opt === 'all' ? 'All ' + group.label : opt;
+      
+      d.addEventListener('click', function(){
+        currentFilters[group.id] = opt;
+        updateFilterChips();
+        applyHotspotFilters();
+      });
+      row.appendChild(d);
+    });
+  });
+}
+
+function applyHotspotFilters(){
+  hotspotMarkers.forEach((m, idx) => {
+    var hs = HOTSPOTS[idx];
+    var show = true;
+    if(currentFilters.entity !== 'all' && hs.entity !== currentFilters.entity) show = false;
+    if(currentFilters.threat !== 'all' && hs.threat !== currentFilters.threat) show = false;
+    if(currentFilters.type !== 'all' && hs.type !== currentFilters.type) show = false;
+    
+    if(show) m.addTo(map);
+    else map.removeLayer(m);
+  });
+}
 }
 
 // ── USER LOCATION DOT ──────────────────────────────────────
@@ -764,7 +991,9 @@ function getEntityColor(name){
     'Mohini Pey': '#9B596E',
     'Sudalai Madan': '#8B4B2E',
     'Panjurli': '#5B5A3B',
-    'Kallurti': '#5A4678'
+    'Kallurti': '#5A4678',
+    'Ritual': '#5A4678',
+    'Chathan': '#5C5C66'
   };
   return colors[name] || '#8e9aaf';
 }
@@ -805,7 +1034,7 @@ function trySpawnGhost(center){
   
   var icon = L.divIcon({
       className: 'ghost-outer',
-      html: `<div class="ghost-inner" style="background:${color}; box-shadow:0 0 12px ${color}90;"></div>`,
+      html: `<div class="ghost-inner" style="background:${color}; box-shadow:0 0 15px ${color};"></div>`,
       iconSize: [30, 30],
       iconAnchor: [15, 15]
   });
@@ -1034,7 +1263,7 @@ function initMap(latlng){
   detectRegion(latlng.lat,latlng.lng);
   generateDangerZones(latlng);
   loadGraveyards(latlng.lat,latlng.lng);
-  setTimeout(function(){trySpawnGhost(latlng);},1500);
+  // Curated hotspots are rendered globally, no random spawning
 }
 
 // ── LOCATION ───────────────────────────────────────────────
@@ -1186,6 +1415,8 @@ document.getElementById('refresh-btn').addEventListener('click',function(){
 
 // ── AUTO-START ─────────────────────────────────────────────
 startLocate();
+renderHotspots();
+updateFilterChips();
 
 function toggleAbout(){
   document.getElementById('about-sheet').classList.toggle('open');
