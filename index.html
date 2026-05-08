@@ -58,15 +58,30 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .chip.active::before{opacity:1;transform:scale(1.2);box-shadow:0 0 12px var(--dot-c, #8e9aaf);}
 
 /* Category Dot Colors */
-.chip[data-filter="Yakshi"]{--dot-c:#ff4d6d;}
-.chip[data-filter="Odiyan"]{--dot-c:#fb8500;}
-.chip[data-filter="Neeli"]{--dot-c:#48cae4;}
-.chip[data-filter="Ritual"]{--dot-c:#7209b7;}
-.chip[data-filter="Chathan"]{--dot-c:#9b2226;}
+.chip[data-filter="Yakshi"]{--dot-c:#B84A62;}
+.chip[data-filter="Odiyan"]{--dot-c:#A96A32;}
+.chip[data-filter="Neeli"]{--dot-c:#4A78B8;}
+.chip[data-filter="Gulikan"]{--dot-c:#5C5C66;}
+.chip[data-filter="Karinkali"]{--dot-c:#4B3A5A;}
+.chip[data-filter="Kutti Chathan"]{--dot-c:#8A2E24;}
+.chip[data-filter="Chudala"]{--dot-c:#4B4F7A;}
+.chip[data-filter="Brahmarakshas"]{--dot-c:#701C1C;}
+.chip[data-filter="Madan Thampuran"]{--dot-c:#8C6B2E;}
+.chip[data-filter="Mohini Pey"]{--dot-c:#9B596E;}
+.chip[data-filter="Sudalai Madan"]{--dot-c:#8B4B2E;}
+.chip[data-filter="Panjurli"]{--dot-c:#5B5A3B;}
+.chip[data-filter="Kallurti"]{--dot-c:#5A4678;}
 .chip[data-filter="all"]{--dot-c:#8e9aaf;}
-.chip[data-filter="Bhoota"]{--dot-c:#ffb703;}
 
-/* BOTTOM BAR */
+.archive-card .accent{
+  position:absolute;top:0;left:0;width:3px;height:100%;
+  background:var(--gc);opacity:0.6;
+}
+.archive-card .glow{
+  position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  background:radial-gradient(circle, var(--gc) 0%, transparent 70%);
+  opacity:0.12;pointer-events:none;
+}
 #bottom-bar{position:fixed;bottom:0;left:0;width:100%;height:calc(54px + env(safe-area-inset-bottom));padding:0 22px env(safe-area-inset-bottom);display:flex;justify-content:space-between;align-items:center;border-radius:0;border:none;border-top:1px solid var(--border);z-index:1000}
 #signal-text{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--txt2)}
 #signal-text span{color:var(--txt)}
@@ -735,21 +750,36 @@ function updateGhostVisibility(){
 }
 
 // ── SPAWN GHOST ────────────────────────────────────────────
+function getEntityColor(name){
+  var colors = {
+    'Yakshi': '#B84A62',
+    'Odiyan': '#A96A32',
+    'Neeli': '#4A78B8',
+    'Gulikan': '#5C5C66',
+    'Karinkali': '#4B3A5A',
+    'Kutti Chathan': '#8A2E24',
+    'Chudala': '#4B4F7A',
+    'Brahmarakshas': '#701C1C',
+    'Madan Thampuran': '#8C6B2E',
+    'Mohini Pey': '#9B596E',
+    'Sudalai Madan': '#8B4B2E',
+    'Panjurli': '#5B5A3B',
+    'Kallurti': '#5A4678'
+  };
+  return colors[name] || '#8e9aaf';
+}
+
 function trySpawnGhost(center){
   if(spawnedGhosts.length>=1) {
-      // Singleton within 10km check
       var dist = map.distance(center, spawnedGhosts[0].marker.getLatLng());
       if (dist < 10000) return; 
       else {
-          // Remove if too far
           map.removeLayer(spawnedGhosts[0].marker);
           spawnedGhosts = [];
       }
   }
 
   var gs = getRegionGhosts(currentRegionKey);
-  
-  // Decide if we spawn in a danger zone
   var inZone = false;
   var spawnLoc = null;
   
@@ -761,7 +791,6 @@ function trySpawnGhost(center){
       spawnLoc = getRandomLatLngAnnulus(center, 1000, 3000);
   }
 
-  // Filter ghosts: Legendary/Mythic prefer zones
   var filteredGs = gs;
   if (inZone) {
       filteredGs = gs.filter(g => ['legendary', 'mythic', 'epic'].includes(g.rarity));
@@ -772,12 +801,13 @@ function trySpawnGhost(center){
   }
   
   var ghost = filteredGs[Math.floor(Math.random() * filteredGs.length)];
+  var color = getEntityColor(ghost.name);
   
   var icon = L.divIcon({
       className: 'ghost-outer',
-      html: `<div class="ghost-inner rarity-${ghost.rarity}"></div>`,
-      iconSize: [12, 12],
-      iconAnchor: [6, 6]
+      html: `<div class="ghost-inner" style="background:${color}; box-shadow:0 0 12px ${color}90;"></div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
   });
 
   var marker = L.marker(spawnLoc, { icon: icon });
@@ -790,7 +820,6 @@ function trySpawnGhost(center){
   
   updateGhostVisibility();
   
-  // Ghost persistence logic
   setTimeout(function(){
     if(spawnedGhosts[0] && spawnedGhosts[0].marker === marker) {
         if(map.hasLayer(marker)) map.removeLayer(marker);
@@ -804,8 +833,9 @@ function trySpawnGhost(center){
 // ── SHEET ──────────────────────────────────────────────────
 function openSheet(ghost,loc){
   activeGhost=ghost;
-  markDiscovered(ghost.id); // Save to archive when investigated
+  markDiscovered(ghost.id); 
   
+  var color = getEntityColor(ghost.name);
   document.getElementById('sh-name').textContent=ghost.name;
   document.getElementById('sh-tag').textContent=ghost.type+' Entity • '+ghost.rarity;
   document.getElementById('sh-region').textContent=({'kerala':'Kerala','tamilnadu':'Tamil Nadu','karnataka':'Karnataka'})[currentRegionKey]||'—';
@@ -815,9 +845,10 @@ function openSheet(ghost,loc){
   document.getElementById('sh-origin').textContent=ghost.origin;
   document.getElementById('sh-sighting').textContent=ghost.sighting;
   
-  // Style the dot in the sheet
   var dot = document.getElementById('sh-dot');
-  dot.className = 'ghost-inner rarity-' + ghost.rarity;
+  dot.className = 'ghost-inner';
+  dot.style.background = color;
+  dot.style.boxShadow = `0 0 15px ${color}`;
   
   document.getElementById('sheet').classList.add('open');
 }
@@ -864,25 +895,25 @@ function renderArchive(){
     var regionGhosts = LORE[rk] || [];
     regionGhosts.forEach(g => {
       var isDisc = discoveredGhosts.includes(g.id);
+      var color = getEntityColor(g.name);
       var card = document.createElement('div');
       card.className = 'archive-card' + (isDisc ? '' : ' locked');
-      var rColor = getRarityColor(g.rarity);
-      card.style.setProperty('--gc', rColor);
+      card.style.setProperty('--gc', color);
       
-      // Short summary from backstory or a fallback
       var summaryText = isDisc ? (g.backstory.substring(0, 85) + '...') : 'Access restricted. Entity data encrypted.';
       
       var html = `
+        <div class="accent"></div>
         <div class="glow"></div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <div class="r-tag" style="border:1px solid ${rColor}50; color:${rColor}">${g.rarity} Entity</div>
-          ${isDisc ? `<div style="font-size:0.6rem; color:${rColor}; font-weight:800; opacity:0.6;">THREAT: ${g.threat.toUpperCase()}</div>` : ''}
+          <div class="r-tag" style="border:1px solid ${color}50; color:${color}; background:${color}10;">${isDisc ? g.rarity.toUpperCase() : 'CLASSIFIED'}</div>
+          ${isDisc ? `<div style="font-size:0.6rem; color:${color}; font-weight:800; opacity:0.6;">THREAT: ${g.threat.toUpperCase()}</div>` : ''}
         </div>
         <h3>${isDisc ? g.name : 'Classified Entity'}</h3>
         <div class="summary">${summaryText}</div>
         <div class="footer">
           <span>${isDisc ? g.classification : 'Unknown Origin'}</span>
-          <span>${isDisc ? 'Sighting: ' + g.sighting.split(' ')[0] : 'Sighting: Restricted'}</span>
+          <span>${isDisc ? 'Threat Level: ' + g.threat : 'Threat: Restricted'}</span>
         </div>
       `;
       card.innerHTML = html;
@@ -895,20 +926,9 @@ function renderArchive(){
   });
 }
 
-function getRarityColor(r){
-  return {
-    common: '#8e9aaf',
-    uncommon: '#6a994e',
-    rare: '#457b9d',
-    epic: '#8338ec',
-    legendary: '#ffb703',
-    mythic: '#9b2226'
-  }[r] || '#ffffff';
-}
-
 function openDetail(g){
   var body = document.getElementById('detail-body');
-  var color = getRarityColor(g.rarity);
+  var color = getEntityColor(g.name);
   
   body.innerHTML = `
     <div class="detail-hero" style="--gc:${color}">
