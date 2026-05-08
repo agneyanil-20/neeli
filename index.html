@@ -349,7 +349,7 @@
         .ghost-marker {
             width: 52px;
             height: 52px;
-            background: rgba(20, 20, 20, 0.6);
+            background: rgba(15, 15, 15, 0.7);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-radius: 50%;
@@ -358,12 +358,14 @@
             justify-content: center;
             font-size: 26px;
             animation: floatSmooth 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 0 15px rgba(255,255,255,0.05);
+            border: 1.5px solid var(--entity-color, #ffffff22);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 0 12px var(--entity-color-soft, transparent);
+            z-index: 700 !important;
         }
 
         .ghost-marker.daytime {
-            opacity: 0.4;
-            filter: grayscale(0.5);
+            opacity: 0.5;
+            filter: grayscale(0.3) saturate(0.8);
         }
 
         @keyframes floatSmooth {
@@ -376,62 +378,51 @@
             align-items: center;
             justify-content: center;
             font-size: 28px;
-            filter: drop-shadow(0 0 15px rgba(155, 89, 182, 0.8));
+            filter: drop-shadow(0 0 15px rgba(155, 89, 182, 0.6));
             animation: floatSmooth 4s ease-in-out infinite;
         }
 
         /* DANGER ZONES SVG ANIMATION */
         @keyframes pulse-zone {
             0% { fill-opacity: 0.05; transform: scale(0.98); transform-origin: center; }
-            100% { fill-opacity: 0.2; transform: scale(1.02); transform-origin: center; }
+            100% { fill-opacity: 0.15; transform: scale(1.02); transform-origin: center; }
         }
         .atmospheric-zone {
             animation: pulse-zone 4s ease-in-out infinite alternate;
+            pointer-events: none;
         }
 
-        /* RARITY BORDERS & GLOWS */
-        .rarity-common { border: 1.5px solid rgba(80, 80, 80, 0.7); }
-        .rarity-uncommon { border: 1.5px solid rgba(46, 204, 113, 0.7); box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
-        .rarity-rare { border: 1.5px solid rgba(52, 152, 219, 0.8); box-shadow: 0 0 20px rgba(52, 152, 219, 0.3); }
-        .rarity-epic { border: 1.5px solid rgba(155, 89, 182, 0.9); box-shadow: 0 0 25px rgba(155, 89, 182, 0.4); }
-        .rarity-legendary { 
-            border: 2px solid rgba(243, 156, 18, 0.9); 
-            width: 60px;
-            height: 60px;
-            margin-left: -4px; 
-            margin-top: -4px;
-            box-shadow: 0 0 30px rgba(243, 156, 18, 0.6);
-            font-size: 30px;
-        }
-        .rarity-mythic { 
-            border: 2px solid rgba(231, 76, 60, 1); 
-            width: 60px;
-            height: 60px;
-            margin-left: -4px; 
-            margin-top: -4px;
-            font-size: 30px;
-            animation: floatSmooth 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite, mythicPulse 2s infinite alternate;
+        /* ENTITY SIZE & GLOW VARIANTS */
+        .marker-large {
+            width: 62px;
+            height: 62px;
+            font-size: 32px;
+            border-width: 2px;
         }
 
-        @keyframes mythicPulse {
-            0% { box-shadow: 0 0 15px rgba(231, 76, 60, 0.5); }
-            100% { box-shadow: 0 0 40px rgba(231, 76, 60, 1), inset 0 0 20px rgba(231,76,60,0.5); }
+        .marker-mythic {
+            animation: floatSmooth 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite, entityPulse 2.5s infinite alternate;
         }
 
-        /* UTILITY COLORS */
-        .color-common { color: #888; }
-        .color-uncommon { color: #2ecc71; }
-        .color-rare { color: #3498db; }
-        .color-epic { color: #9b59b6; }
-        .color-legendary { color: #f39c12; }
-        .color-mythic { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; }
+        @keyframes entityPulse {
+            0% { box-shadow: 0 0 10px var(--entity-color-soft); }
+            100% { box-shadow: 0 0 30px var(--entity-color), inset 0 0 15px var(--entity-color-soft); }
+        }
 
-        .bg-common { background-color: #888; }
-        .bg-uncommon { background-color: #2ecc71; }
-        .bg-rare { background-color: #3498db; }
-        .bg-epic { background-color: #9b59b6; }
-        .bg-legendary { background-color: #f39c12; }
-        .bg-mythic { background-color: #e74c3c; }
+        /* UI ACCENTS */
+        .entity-accent-text { color: var(--entity-color); text-shadow: 0 0 10px var(--entity-color-soft); }
+        .entity-accent-bg { background-color: var(--entity-color); }
+        .entity-accent-border { border-color: var(--entity-color); }
+
+        /* FILTER CHIP DOT */
+        .chip-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: var(--dot-color, #fff);
+        }
+
 
         /* USER LOCATION */
         .user-location-marker {
@@ -479,13 +470,7 @@
     </div>
 
     <div id="filter-row">
-        <div class="chip liquid-glass active" data-filter="All Spirits">All Spirits</div>
-        <div class="chip liquid-glass" data-filter="Neeli">Neeli</div>
-        <div class="chip liquid-glass" data-filter="Yakshi">Yakshi</div>
-        <div class="chip liquid-glass" data-filter="Odiyan">Odiyan</div>
-        <div class="chip liquid-glass" data-filter="Chathan">Chathan</div>
-        <div class="chip liquid-glass" data-filter="Ritual">Ritual</div>
-        <div class="chip liquid-glass" data-filter="Forest">Forest</div>
+        <!-- Chips generated dynamically in JS -->
     </div>
 
     <div id="bottom-bar" class="liquid-glass">
@@ -509,6 +494,69 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Official Entity Color Palette
+            const ENTITY_COLORS = {
+                'Yakshi': '#B84A62',
+                'Odiyan': '#A96A32',
+                'Neeli': '#4A78B8',
+                'Chathan': '#5C5C66',
+                'Ritual': '#5A4678',
+                'Gulikan': '#5C5C66',
+                'Karinkali': '#4B3A5A',
+                'Kutti Chathan': '#8A2E24',
+                'Chudala': '#4B4F7A',
+                'Brahmarakshas': '#701C1C',
+                'Madan Thampuran': '#8C6B2E',
+                'Mohini Pey': '#9B596E',
+                'Sudalai Madan': '#8B4B2E',
+                'Panjurli': '#5B5A3B',
+                'Kallurti': '#5A4678',
+                'Pretham': '#7A7A7A',
+                'Pishachu': '#6B6B6B',
+                'Marutha': '#5B5A3B',
+                'Maadan': '#4A4A4A',
+                'Parakutty': '#5A4678',
+                'Kalliyankattu Neeli': '#4A78B8',
+                'Spirit': '#7A7A7A',
+                'Forest': '#5B5A3B'
+            };
+
+            const getEntityColor = (name, type) => ENTITY_COLORS[name] || ENTITY_COLORS[type] || '#FFFFFF';
+
+            // Ghost Data mapping types
+            const ghostsList = [
+                { name: 'Pretham', rarity: 'common', type: 'Spirit', points: 10, emoji: '🕯️' },
+                { name: 'Pishachu', rarity: 'common', type: 'Spirit', points: 10, emoji: '👁️' },
+                { name: 'Marutha', rarity: 'common', type: 'Forest', points: 15, emoji: '💨' },
+                { name: 'Maadan', rarity: 'common', type: 'Forest', points: 15, emoji: '🌑' },
+                { name: 'Parakutty', rarity: 'uncommon', type: 'Ritual', points: 25, emoji: '🌿' },
+                { name: 'Neeli', rarity: 'uncommon', type: 'Neeli', points: 25, emoji: '💧' },
+                { name: 'Karinkali', rarity: 'rare', type: 'Ritual', points: 50, emoji: '🖤' },
+                { name: 'Gulikan', rarity: 'rare', type: 'Ritual', points: 50, emoji: '⛓️' },
+                { name: 'Kutti Chathan', rarity: 'epic', type: 'Chathan', points: 100, emoji: '🔥' },
+                { name: 'Chudala', rarity: 'epic', type: 'Ritual', points: 100, emoji: '🌙' },
+                { name: 'Yakshi', rarity: 'legendary', type: 'Yakshi', points: 200, emoji: '🌸' },
+                { name: 'Odiyan', rarity: 'legendary', type: 'Odiyan', points: 200, emoji: '🐺' },
+                { name: 'Kalliyankattu Neeli', rarity: 'legendary', type: 'Neeli', points: 300, emoji: '👁️' },
+                { name: 'Madan Thampuran', rarity: 'mythic', type: 'Spirit', points: 500, emoji: '👑' },
+                { name: 'Brahmarakshas', rarity: 'mythic', type: 'Spirit', points: 1000, emoji: '☠️' },
+                { name: 'Mohini Pey', rarity: 'rare', type: 'Spirit', points: 150, emoji: '💃' },
+                { name: 'Sudalai Madan', rarity: 'epic', type: 'Forest', points: 250, emoji: '🔱' },
+                { name: 'Panjurli', rarity: 'legendary', type: 'Forest', points: 400, emoji: '🐗' },
+                { name: 'Kallurti', rarity: 'rare', type: 'Ritual', points: 120, emoji: '🗿' }
+            ];
+
+
+            // Global State
+            let score = 0;
+            let currentLatLng = null;
+            let activeGhostData = null;
+            let activeGhostMarker = null;
+            let activeFilter = 'All Spirits';
+            const spawnedGhosts = []; 
+            const dangerZones = [];
+            const graveyardLocations = [];
+
             // Setup Map
             const map = L.map('map', {
                 zoomControl: false,
@@ -543,34 +591,34 @@
             }
             initParticles();
 
-            // Ghost Data mapping types
-            const ghostsList = [
-                { name: 'Pretham', rarity: 'common', type: 'Spirit', points: 10, emoji: '🕯️' },
-                { name: 'Pishachu', rarity: 'common', type: 'Spirit', points: 10, emoji: '👁️' },
-                { name: 'Marutha', rarity: 'common', type: 'Forest', points: 15, emoji: '💨' },
-                { name: 'Maadan', rarity: 'common', type: 'Forest', points: 15, emoji: '🌑' },
-                { name: 'Parakutty', rarity: 'uncommon', type: 'Ritual', points: 25, emoji: '🌿' },
-                { name: 'Neeli', rarity: 'uncommon', type: 'Neeli', points: 25, emoji: '💧' },
-                { name: 'Karinkali', rarity: 'rare', type: 'Ritual', points: 50, emoji: '🖤' },
-                { name: 'Gulikan', rarity: 'rare', type: 'Ritual', points: 50, emoji: '⛓️' },
-                { name: 'Kutti Chathan', rarity: 'epic', type: 'Chathan', points: 100, emoji: '🔥' },
-                { name: 'Chudala', rarity: 'epic', type: 'Ritual', points: 100, emoji: '🌙' },
-                { name: 'Yakshi', rarity: 'legendary', type: 'Yakshi', points: 200, emoji: '🌸' },
-                { name: 'Odiyan', rarity: 'legendary', type: 'Odiyan', points: 200, emoji: '🐺' },
-                { name: 'Kalliyankattu Neeli', rarity: 'legendary', type: 'Neeli', points: 300, emoji: '👁️' },
-                { name: 'Madan Thampuran', rarity: 'mythic', type: 'Spirit', points: 500, emoji: '👑' },
-                { name: 'Brahmarakshas', rarity: 'mythic', type: 'Spirit', points: 1000, emoji: '☠️' }
-            ];
-
-            // Global State
-            let score = 0;
-            let currentLatLng = null;
-            let activeGhostData = null;
-            let activeGhostMarker = null;
-            let activeFilter = 'All Spirits';
-            const spawnedGhosts = []; 
-            const dangerZones = [];
-            const graveyardLocations = [];
+            // Filter Chip Generation
+            const filterContainer = document.getElementById('filter-row');
+            const categories = ['All Spirits', 'Neeli', 'Yakshi', 'Odiyan', 'Chathan', 'Ritual', 'Forest'];
+            
+            categories.forEach(cat => {
+                const chip = document.createElement('div');
+                chip.className = 'chip liquid-glass' + (cat === activeFilter ? ' active' : '');
+                chip.dataset.filter = cat;
+                
+                if (cat !== 'All Spirits') {
+                    const dot = document.createElement('div');
+                    dot.className = 'chip-dot';
+                    dot.style.background = ENTITY_COLORS[cat] || '#FFF';
+                    chip.appendChild(dot);
+                }
+                
+                const label = document.createTextNode(cat);
+                chip.appendChild(label);
+                
+                chip.addEventListener('click', (e) => {
+                    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    activeFilter = cat;
+                    updateGhostVisibility();
+                });
+                
+                filterContainer.appendChild(chip);
+            });
 
             // Atmosphere Logic
             const hour = new Date().getHours();
@@ -620,17 +668,6 @@
             const sheetPoints = document.getElementById('sheet-points');
             const catchBtn = document.getElementById('catch-btn');
             
-            // Filter Logic
-            const chips = document.querySelectorAll('.chip');
-            chips.forEach(chip => {
-                chip.addEventListener('click', (e) => {
-                    chips.forEach(c => c.classList.remove('active'));
-                    e.target.classList.add('active');
-                    activeFilter = e.target.dataset.filter;
-                    updateGhostVisibility();
-                });
-            });
-
             function updateGhostVisibility() {
                 let visibleCount = 0;
                 spawnedGhosts.forEach(g => {
@@ -655,9 +692,12 @@
                     score += activeGhostData.points;
                     scoreDisplay.innerText = score;
                     
+                    const entityColor = getEntityColor(activeGhostData.name, activeGhostData.type);
+                    
                     lastCaughtDisplay.innerText = activeGhostData.name;
                     lastCaughtDot.style.display = 'block';
-                    lastCaughtDot.className = `rarity-dot bg-${activeGhostData.rarity}`;
+                    lastCaughtDot.style.background = entityColor;
+                    lastCaughtDot.style.boxShadow = `0 0 10px ${entityColor}`;
                     
                     map.removeLayer(activeGhostMarker);
                     
@@ -712,7 +752,6 @@
 
             async function generateGraveyards(center) {
                 try {
-                    // Try to fetch real graveyards from Overpass API
                     const query = `[out:json];(node["amenity"="grave_yard"](around:2000,${center.lat},${center.lng});node["landuse"="cemetery"](around:2000,${center.lat},${center.lng}););out center;`;
                     const res = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
                     const data = await res.json();
@@ -729,7 +768,6 @@
                     console.warn("Overpass API failed, generating fallback graveyards.");
                 }
                 
-                // Fallback: Generate 2 fake graveyards
                 for(let i=0; i<2; i++) {
                     plotGraveyard(getRandomLatLngAnnulus(center, 400, 1200));
                 }
@@ -750,7 +788,6 @@
             function getSpawnRarity(spawnLoc) {
                 let w = { 'common': 40, 'uncommon': 25, 'rare': 18, 'epic': 10, 'legendary': 5, 'mythic': 2 };
                 
-                // Boosts based on Danger Zones
                 dangerZones.forEach(z => {
                     if (spawnLoc.distanceTo(z.loc) <= z.radius) {
                         if (z.type === 'danger') { w.legendary += 15; w.mythic += 5; }
@@ -758,14 +795,12 @@
                     }
                 });
 
-                // Boosts based on Graveyards
                 graveyardLocations.forEach(g => {
                     if (spawnLoc.distanceTo(g) <= 150 && isNight) {
                         w.epic += 10; w.legendary += 20; w.mythic += 10;
                     }
                 });
 
-                // Boosts based on Time
                 if (hour >= 23 || hour < 3) {
                     w.mythic += 5; w.legendary += 5;
                 }
@@ -787,19 +822,31 @@
                 const filtered = ghostsList.filter(g => g.rarity === rarity);
                 const ghost = filtered[Math.floor(Math.random() * filtered.length)];
                 
+                const entityColor = getEntityColor(ghost.name, ghost.type);
                 const daytimeClass = isNight ? '' : 'daytime';
-                const anchorSize = ghost.rarity === 'legendary' || ghost.rarity === 'mythic' ? 30 : 26;
-                const iconSize = ghost.rarity === 'legendary' || ghost.rarity === 'mythic' ? 60 : 52;
+                
+                let markerClass = `ghost-marker ${daytimeClass}`;
+                let size = 52;
+                if (ghost.rarity === 'legendary') { markerClass += ' marker-large'; size = 62; }
+                if (ghost.rarity === 'mythic') { markerClass += ' marker-large marker-mythic'; size = 62; }
 
                 const ghostIcon = L.divIcon({
-                    className: `ghost-marker rarity-${ghost.rarity} ${daytimeClass}`,
+                    className: markerClass,
                     html: ghost.emoji,
-                    iconSize: [iconSize, iconSize],
-                    iconAnchor: [anchorSize, anchorSize]
+                    iconSize: [size, size],
+                    iconAnchor: [size/2, size/2]
                 });
 
                 const marker = L.marker(location, { icon: ghostIcon });
                 
+                marker.on('add', () => {
+                    const el = marker.getElement();
+                    if (el) {
+                        el.style.setProperty('--entity-color', entityColor);
+                        el.style.setProperty('--entity-color-soft', entityColor + '55');
+                    }
+                });
+
                 spawnedGhosts.push({ marker: marker, data: ghost });
                 updateGhostVisibility();
 
@@ -808,11 +855,20 @@
                     activeGhostData = ghost;
                     activeGhostMarker = marker;
                     
+                    const color = getEntityColor(ghost.name, ghost.type);
+                    
                     sheetEmoji.innerText = ghost.emoji;
                     sheetName.innerText = ghost.name;
+                    sheetName.style.color = color;
+                    
                     sheetType.innerText = `[ ${ghost.type} ]  ·  ${ghost.rarity}`;
-                    sheetType.className = `color-${ghost.rarity}`;
+                    sheetType.style.color = color;
+                    
                     sheetPoints.innerText = `+${ghost.points} PTS`;
+                    
+                    catchBtn.style.background = color;
+                    catchBtn.style.color = '#FFF';
+                    catchBtn.style.boxShadow = `0 10px 20px ${color}33`;
                     
                     bottomSheet.classList.add('active');
                 });
@@ -829,13 +885,12 @@
                     userMarker.setLatLng(e.latlng);
                 }
                 
-                map.setView(e.latlng, 16); // Slightly zoomed out to see zones
+                map.setView(e.latlng, 16);
 
                 if (!mapInitialized) {
                     mapInitialized = true;
                     generateDangerZones(e.latlng);
                     generateGraveyards(e.latlng).then(() => {
-                        // Spawn ghosts after map elements are loaded
                         for (let i = 0; i < maxGhosts; i++) {
                             spawnSingleGhost(e.latlng);
                         }
@@ -857,3 +912,4 @@
     </script>
 </body>
 </html>
+
