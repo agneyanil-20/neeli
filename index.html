@@ -615,7 +615,8 @@ var spawnedGhosts=[];
 var graveyardLayers=[];
 var activeGhost=null;
 var mapInitDone=false;
-var discoveredGhosts=JSON.parse(localStorage.getItem('neeli_archive')||'[]');
+var discoveredGhosts=[];
+try { discoveredGhosts = JSON.parse(localStorage.getItem('neeli_archive') || '[]'); } catch (e) { console.warn('Local storage restricted. Progress will not be saved.'); }
 
 // ── TIME LOGIC ─────────────────────────────────────────────
 var hr=new Date().getHours();
@@ -1000,7 +1001,7 @@ document.querySelector('#detail-sheet .archive-close').addEventListener('click',
 function markDiscovered(id){
   if(!discoveredGhosts.includes(id)){
     discoveredGhosts.push(id);
-    localStorage.setItem('neeli_archive', JSON.stringify(discoveredGhosts));
+    try { localStorage.setItem('neeli_archive', JSON.stringify(discoveredGhosts)); } catch (e) {}
   }
 }
 document.getElementById('sheet-close').addEventListener('click',function(){document.getElementById('sheet').classList.remove('open');});
