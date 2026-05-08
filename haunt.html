@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>HAUNT</title>
+    <!-- Syne Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        :root {
+            --bg-color: #080808;
+            --accent-color: #ffffff;
+            --glow-color: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Syne', sans-serif;
+            color: #fff;
+        }
+
+        #map {
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Hide Leaflet Controls */
+        .leaflet-control-zoom,
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+
+        /* LIQUID GLASS SYSTEM */
+        .liquid-glass {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+        }
+
+        /* TOP BAR */
+        #top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(56px + env(safe-area-inset-top));
+            padding: env(safe-area-inset-top) 20px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            z-index: 1000;
+        }
+
+        .top-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        .top-score {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        /* FILTER ROW */
+        #filter-row {
+            position: fixed;
+            top: calc(56px + env(safe-area-inset-top) + 12px);
+            left: 0;
+            width: 100%;
+            padding: 0 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            z-index: 1000;
+        }
+
+        #filter-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip.active {
+            background: #ffffff;
+            color: #000000;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: none;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+
+        /* PEAK TIME PILL */
+        #time-pill {
+            position: fixed;
+            top: calc(56px + env(safe-area-inset-top) + 56px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 1000;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #time-pill.night {
+            color: #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+
+        #time-pill.day {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        /* BOTTOM BAR */
+        #bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: calc(56px + env(safe-area-inset-bottom));
+            padding: 0 20px env(safe-area-inset-bottom) 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+            border-bottom: none;
+            z-index: 1000;
+        }
+
+        .bottom-stat {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .bottom-stat span {
+            color: #fff;
+        }
+
+        .last-caught-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rarity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* BOTTOM SHEET */
+        #bottom-sheet {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px 24px 0 0;
+            padding: 28px 24px calc(28px + env(safe-area-inset-bottom));
+            z-index: 2000;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        }
+
+        #bottom-sheet.active {
+            bottom: 0;
+        }
+
+        #sheet-emoji {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        #sheet-name {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        #sheet-rarity {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        #sheet-points {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        #catch-btn {
+            width: 100%;
+            height: 52px;
+            background-color: #fff;
+            color: #000;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #catch-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+        }
+
+        /* GHOST MARKERS */
+        .ghost-marker {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            animation: floatUpDown 2.5s ease-in-out infinite;
+        }
+
+        .ghost-marker.daytime {
+            opacity: 0.5;
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* RARITY COLORS & EFFECTS */
+        .rarity-common { border: 1.5px solid rgba(68, 68, 68, 0.7); }
+        .rarity-uncommon { border: 1.5px solid rgba(46, 204, 113, 0.7); }
+        .rarity-rare { border: 1.5px solid rgba(52, 152, 219, 0.7); }
+        .rarity-epic { border: 1.5px solid rgba(155, 89, 182, 0.7); }
+        .rarity-legendary { 
+            border: 1.5px solid rgba(243, 156, 18, 0.7); 
+            width: 54px;
+            height: 54px;
+            margin-left: -3px; /* compensate for size increase from 48px */
+            margin-top: -3px;
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+        }
+        .rarity-mythic { 
+            border: 1.5px solid rgba(231, 76, 60, 0.7); 
+            animation: floatUpDown 2.5s ease-in-out infinite, mythicPulse 2s infinite;
+        }
+
+        @keyframes mythicPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.9); }
+        }
+
+        /* TEXT COLORS */
+        .color-common { color: #888; }
+        .color-uncommon { color: #2ecc71; }
+        .color-rare { color: #3498db; }
+        .color-epic { color: #9b59b6; }
+        .color-legendary { color: #f39c12; }
+        .color-mythic { color: #e74c3c; text-shadow: 0 0 8px #e74c3c; }
+
+        .bg-common { background-color: #888; }
+        .bg-uncommon { background-color: #2ecc71; }
+        .bg-rare { background-color: #3498db; }
+        .bg-epic { background-color: #9b59b6; }
+        .bg-legendary { background-color: #f39c12; }
+        .bg-mythic { background-color: #e74c3c; }
+
+        /* Pulsing user location marker */
+        .user-location-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dot-core {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--glow-color);
+            z-index: 2;
+        }
+
+        .dot-pulse {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            animation: pulse 2s ease-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div id="top-bar" class="liquid-glass">
+        <div class="top-title">HAUNT</div>
+        <div class="top-score" id="score-display">0</div>
+    </div>
+
+    <div id="filter-row">
+        <div class="chip liquid-glass active" data-filter="All">All</div>
+        <div class="chip liquid-glass" data-filter="common">Common</div>
+        <div class="chip liquid-glass" data-filter="uncommon">Uncommon</div>
+        <div class="chip liquid-glass" data-filter="rare">Rare</div>
+        <div class="chip liquid-glass" data-filter="epic">Epic</div>
+        <div class="chip liquid-glass" data-filter="legendary">Legendary</div>
+        <div class="chip liquid-glass" data-filter="mythic">Mythic</div>
+    </div>
+
+    <div id="time-pill"></div>
+
+    <div id="bottom-bar" class="liquid-glass">
+        <div class="bottom-stat"><span id="ghost-count">0</span> ghosts nearby</div>
+        <div class="bottom-stat last-caught-container">
+            Last: <span id="last-caught">-</span>
+            <div id="last-caught-dot" class="rarity-dot" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div id="bottom-sheet">
+        <div id="sheet-emoji"></div>
+        <div id="sheet-name"></div>
+        <div id="sheet-rarity"></div>
+        <div id="sheet-points"></div>
+        <button id="catch-btn">CATCH</button>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup Map
+            const map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false
+            }).setView([0, 0], 17);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20
+            }).addTo(map);
+
+            let userMarker;
+            const pulsingIcon = L.divIcon({
+                className: 'user-location-marker',
+                html: '<div class="dot-pulse"></div><div class="dot-core"></div>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            // Ghost Data
+            const ghostsList = [
+                { name: 'Pretham', rarity: 'common', points: 10, emoji: '🕯️' },
+                { name: 'Pishachu', rarity: 'common', points: 10, emoji: '👁️' },
+                { name: 'Marutha', rarity: 'common', points: 15, emoji: '💨' },
+                { name: 'Maadan', rarity: 'common', points: 15, emoji: '🌑' },
+                { name: 'Parakutty', rarity: 'uncommon', points: 25, emoji: '🌿' },
+                { name: 'Neeli', rarity: 'uncommon', points: 25, emoji: '💧' },
+                { name: 'Karinkali', rarity: 'rare', points: 50, emoji: '🖤' },
+                { name: 'Gulikan', rarity: 'rare', points: 50, emoji: '⛓️' },
+                { name: 'Kutti Chathan', rarity: 'epic', points: 100, emoji: '🔥' },
+                { name: 'Chudala', rarity: 'epic', points: 100, emoji: '🌙' },
+                { name: 'Yakshi', rarity: 'legendary', points: 200, emoji: '🌸' },
+                { name: 'Odiyan', rarity: 'legendary', points: 200, emoji: '🐺' },
+                { name: 'Kalliyankattu Neeli', rarity: 'legendary', points: 300, emoji: '👁️' },
+                { name: 'Madan Thampuran', rarity: 'mythic', points: 500, emoji: '👑' },
+                { name: 'Brahmarakshas', rarity: 'mythic', points: 1000, emoji: '☠️' }
+            ];
+
+            const spawnWeights = {
+                'common': 40,
+                'uncommon': 25,
+                'rare': 18,
+                'epic': 10,
+                'legendary': 5,
+                'mythic': 2
+            };
+
+            // Global State
+            let score = 0;
+            let currentLatLng = null;
+            let activeGhostData = null;
+            let activeGhostMarker = null;
+            let activeFilter = 'All';
+            const spawnedGhosts = []; 
+
+            // Day/Night Logic
+            const hour = new Date().getHours();
+            const isNight = hour >= 18 || hour < 6;
+            const maxGhosts = isNight ? 7 : 2;
+            const spawnIntervalMs = isNight ? 25000 : 90000;
+
+            const timePill = document.getElementById('time-pill');
+            if (isNight) {
+                timePill.innerText = "🌙 Peak Hours — Ghosts are active";
+                timePill.className = "night";
+            } else {
+                timePill.innerText = "☀️ Return at night — Ghosts are resting";
+                timePill.className = "day";
+            }
+
+            // DOM Elements
+            const scoreDisplay = document.getElementById('score-display');
+            const ghostCountDisplay = document.getElementById('ghost-count');
+            const lastCaughtDisplay = document.getElementById('last-caught');
+            const lastCaughtDot = document.getElementById('last-caught-dot');
+            
+            const bottomSheet = document.getElementById('bottom-sheet');
+            const sheetEmoji = document.getElementById('sheet-emoji');
+            const sheetName = document.getElementById('sheet-name');
+            const sheetRarity = document.getElementById('sheet-rarity');
+            const sheetPoints = document.getElementById('sheet-points');
+            const catchBtn = document.getElementById('catch-btn');
+            
+            // Filter Logic
+            const chips = document.querySelectorAll('.chip');
+            chips.forEach(chip => {
+                chip.addEventListener('click', (e) => {
+                    chips.forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                    activeFilter = e.target.dataset.filter;
+                    updateGhostVisibility();
+                });
+            });
+
+            function updateGhostVisibility() {
+                let visibleCount = 0;
+                spawnedGhosts.forEach(g => {
+                    const shouldShow = activeFilter === 'All' || g.data.rarity === activeFilter;
+                    if (shouldShow) {
+                        if (!map.hasLayer(g.marker)) {
+                            map.addLayer(g.marker);
+                        }
+                        visibleCount++;
+                    } else {
+                        if (map.hasLayer(g.marker)) {
+                            map.removeLayer(g.marker);
+                        }
+                    }
+                });
+                ghostCountDisplay.innerText = visibleCount;
+            }
+
+            // Catch Interaction
+            catchBtn.addEventListener('click', () => {
+                if (activeGhostData && activeGhostMarker) {
+                    score += activeGhostData.points;
+                    scoreDisplay.innerText = score;
+                    
+                    lastCaughtDisplay.innerText = activeGhostData.name;
+                    lastCaughtDot.style.display = 'block';
+                    lastCaughtDot.className = `rarity-dot bg-${activeGhostData.rarity}`;
+                    
+                    map.removeLayer(activeGhostMarker);
+                    
+                    // Remove from tracking array
+                    const idx = spawnedGhosts.findIndex(g => g.marker === activeGhostMarker);
+                    if (idx > -1) spawnedGhosts.splice(idx, 1);
+                    
+                    updateGhostVisibility();
+
+                    bottomSheet.classList.remove('active');
+                    activeGhostData = null;
+                    activeGhostMarker = null;
+                }
+            });
+
+            map.on('click', () => {
+                bottomSheet.classList.remove('active');
+            });
+
+            // Spawning Logic
+            function getRandomGhost() {
+                const rand = Math.random() * 100;
+                let cumulativeWeight = 0;
+                let selectedRarity = 'common';
+                for (const [rarity, weight] of Object.entries(spawnWeights)) {
+                    cumulativeWeight += weight;
+                    if (rand <= cumulativeWeight) {
+                        selectedRarity = rarity;
+                        break;
+                    }
+                }
+                const filtered = ghostsList.filter(g => g.rarity === selectedRarity);
+                return filtered[Math.floor(Math.random() * filtered.length)];
+            }
+
+            function getRandomLatLngAnnulus(center, minRadius, maxRadius) {
+                const R = 6378137;
+                // Bias towards outer edge using sqrt curve
+                const r = Math.sqrt(Math.random() * (Math.pow(maxRadius, 2) - Math.pow(minRadius, 2)) + Math.pow(minRadius, 2));
+                const theta = Math.random() * 2 * Math.PI;
+                const dLat = r * Math.cos(theta);
+                const dLng = r * Math.sin(theta);
+                const latOffset = dLat / R * (180 / Math.PI);
+                const lngOffset = dLng / (R * Math.cos(Math.PI * center.lat / 180)) * (180 / Math.PI);
+                return L.latLng(center.lat + latOffset, center.lng + lngOffset);
+            }
+
+            function spawnSingleGhost(centerLatLng) {
+                if (spawnedGhosts.length >= maxGhosts) return;
+
+                const ghost = getRandomGhost();
+                // Spawn 200m - 800m away
+                const location = getRandomLatLngAnnulus(centerLatLng, 200, 800);
+                
+                const daytimeClass = isNight ? '' : 'daytime';
+                const anchorSize = ghost.rarity === 'legendary' ? 27 : 24;
+                const iconSize = ghost.rarity === 'legendary' ? 54 : 48;
+
+                const ghostIcon = L.divIcon({
+                    className: `ghost-marker rarity-${ghost.rarity} ${daytimeClass}`,
+                    html: ghost.emoji,
+                    iconSize: [iconSize, iconSize],
+                    iconAnchor: [anchorSize, anchorSize]
+                });
+
+                const marker = L.marker(location, { icon: ghostIcon });
+                
+                // Track ghost state
+                spawnedGhosts.push({
+                    marker: marker,
+                    data: ghost
+                });
+
+                // Respect current filter
+                updateGhostVisibility();
+
+                marker.on('click', (e) => {
+                    L.DomEvent.stopPropagation(e);
+                    activeGhostData = ghost;
+                    activeGhostMarker = marker;
+                    
+                    sheetEmoji.innerText = ghost.emoji;
+                    sheetName.innerText = ghost.name;
+                    sheetRarity.innerText = ghost.rarity;
+                    sheetRarity.className = `color-${ghost.rarity}`;
+                    sheetPoints.innerText = `+${ghost.points} PTS`;
+                    
+                    bottomSheet.classList.add('active');
+                });
+            }
+
+            let initialSpawnDone = false;
+
+            function startSpawning(centerLatLng) {
+                if (initialSpawnDone) return;
+                initialSpawnDone = true;
+
+                for (let i = 0; i < maxGhosts; i++) {
+                    spawnSingleGhost(centerLatLng);
+                }
+
+                setInterval(() => {
+                    if (currentLatLng) {
+                        spawnSingleGhost(currentLatLng);
+                    }
+                }, spawnIntervalMs);
+            }
+
+            // Geolocation
+            function onLocationFound(e) {
+                currentLatLng = e.latlng;
+                if (!userMarker) {
+                    userMarker = L.marker(e.latlng, { icon: pulsingIcon }).addTo(map);
+                } else {
+                    userMarker.setLatLng(e.latlng);
+                }
+                map.setView(e.latlng, 17);
+                startSpawning(e.latlng);
+            }
+
+            function onLocationError(e) {
+                console.error("Location access error:", e.message);
+            }
+
+            map.on('locationfound', onLocationFound);
+            map.on('locationerror', onLocationError);
+            map.locate({ setView: true, maxZoom: 17, watch: true, enableHighAccuracy: true });
+        });
+    </script>
+</body>
+</html>
