@@ -58,10 +58,11 @@
             pointer-events: none;
             z-index: 2;
             transition: background 3s ease;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%);
         }
         
         .night-overlay {
-            background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.85) 100%);
+            background: radial-gradient(circle at center, transparent 10%, rgba(0,0,0,0.7) 100%) !important;
         }
 
         #ambient-particles {
@@ -69,34 +70,32 @@
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 3;
-            overflow: hidden;
+            opacity: 0.4;
         }
         
         .particle {
             position: absolute;
             bottom: -20px;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
-            filter: blur(3px);
+            filter: blur(2px);
             animation: floatUp linear infinite;
-            box-shadow: 0 0 10px rgba(255,255,255,0.2);
         }
 
         @keyframes floatUp {
-            0% { transform: translateY(0) scale(1) translateX(0); opacity: 0; }
-            20% { opacity: 0.4; }
-            80% { opacity: 0.4; }
-            100% { transform: translateY(-100vh) scale(2) translateX(30px); opacity: 0; }
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            50% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
         }
 
         /* LIQUID GLASS SYSTEM */
         .liquid-glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(28px) saturate(200%);
-            -webkit-backdrop-filter: blur(28px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
         }
 
         /* TOP BAR */
@@ -105,118 +104,113 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: calc(56px + env(safe-area-inset-top));
-            padding: env(safe-area-inset-top) 20px 0 20px;
+            height: calc(44px + env(safe-area-inset-top));
+            padding: env(safe-area-inset-top) 16px 0 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-radius: 0;
-            border-left: none;
-            border-right: none;
-            border-top: none;
+            border: none;
             z-index: 1000;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
         .top-title {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.4em;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5em;
             text-transform: uppercase;
         }
 
         .top-score {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 800;
-            text-shadow: 0 0 15px rgba(255,255,255,0.3);
+            color: #fff;
         }
 
         /* PARANORMAL BANNER */
         #paranormal-banner {
             position: fixed;
-            top: calc(56px + env(safe-area-inset-top) + 16px);
-            left: 16px;
-            right: 16px;
-            padding: 14px 16px;
+            top: calc(44px + env(safe-area-inset-top) + 12px);
+            left: 12px;
+            right: 12px;
+            padding: 10px 14px;
             z-index: 1000;
-            text-align: center;
-            transition: all 1s ease;
+            text-align: left;
+            transition: all 0.8s ease;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 2px;
+            border-radius: 8px;
         }
 
         .banner-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 800;
             letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
         .banner-subtitle {
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 400;
-            opacity: 0.8;
+            opacity: 0.6;
+            letter-spacing: 0.02em;
         }
 
         .banner-glow-red { 
-            box-shadow: 0 0 30px rgba(231, 76, 60, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
-            border-color: rgba(231, 76, 60, 0.4) !important; 
+            border-left: 3px solid #ff4b2b !important;
+            background: rgba(40, 5, 5, 0.4) !important;
         }
-        .banner-glow-red .banner-title { color: #ff8a80; text-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+        .banner-glow-red .banner-title { color: #ff8a80; }
 
         .banner-glow-blue { 
-            box-shadow: 0 0 30px rgba(100, 100, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
-            border-color: rgba(100, 100, 255, 0.3) !important; 
+            border-left: 3px solid #00d2ff !important;
         }
-        .banner-glow-blue .banner-title { color: #b3c2ff; text-shadow: 0 0 10px rgba(100, 100, 255, 0.4); }
 
         .banner-glow-clear { 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); 
+            border-left: 3px solid rgba(255,255,255,0.2) !important;
         }
 
         /* FILTER ROW */
         #filter-row {
             position: fixed;
-            top: calc(56px + env(safe-area-inset-top) + 90px);
+            top: calc(44px + env(safe-area-inset-top) + 68px);
             left: 0;
             width: 100%;
-            padding: 0 16px;
+            padding: 0 12px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
             scrollbar-width: none;
-            -ms-overflow-style: none;
             z-index: 1000;
         }
 
-        #filter-row::-webkit-scrollbar {
-            display: none;
-        }
-
         .chip {
-            height: 36px;
-            padding: 0 20px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            color: rgba(255, 255, 255, 0.6);
+            height: 28px;
+            padding: 0 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.5);
             white-space: nowrap;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
         }
 
         .chip.active {
-            background: #ffffff;
-            color: #000000;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            border: none;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
         }
 
         /* BOTTOM BAR */
@@ -225,49 +219,42 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: calc(64px + env(safe-area-inset-bottom));
-            padding: 0 24px env(safe-area-inset-bottom) 24px;
+            height: calc(48px + env(safe-area-inset-bottom));
+            padding: 0 20px env(safe-area-inset-bottom) 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-radius: 0;
-            border-left: none;
-            border-right: none;
-            border-bottom: none;
+            border: none;
             z-index: 1000;
-            background: rgba(5, 5, 5, 0.4);
-            backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .bottom-stat {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
             font-weight: 700;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
 
         .bottom-stat span {
-            color: #fff;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 800;
         }
 
-        .last-caught-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .rarity-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            animation: dotBreathing 3s ease-in-out infinite alternate;
+            animation: dotBreathing 2s infinite alternate;
         }
 
         @keyframes dotBreathing {
-            0% { transform: scale(0.8); opacity: 0.6; }
-            100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px currentColor; }
+            0% { opacity: 0.4; }
+            100% { opacity: 1; transform: scale(1.2); }
         }
 
         /* BOTTOM SHEET */
@@ -276,152 +263,111 @@
             bottom: -100%;
             left: 0;
             width: 100%;
-            background: rgba(10, 10, 10, 0.75);
-            backdrop-filter: blur(50px) saturate(200%);
-            -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 32px 32px 0 0;
-            padding: 36px 24px calc(36px + env(safe-area-inset-bottom));
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px 24px 0 0;
+            padding: 32px 24px calc(24px + env(safe-area-inset-bottom));
             z-index: 2000;
-            transition: bottom 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 -15px 50px rgba(0,0,0,0.8);
-        }
-
-        #bottom-sheet.active {
-            bottom: 0;
+            transition: bottom 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
         #sheet-emoji {
-            font-size: 64px;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.9;
         }
 
         #sheet-name {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 800;
-            margin-bottom: 8px;
-            text-align: center;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            text-transform: uppercase;
         }
 
         #sheet-type {
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.3em;
-            font-weight: 800;
-            margin-bottom: 16px;
-            opacity: 0.8;
-        }
-
-        #sheet-points {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 800;
-            margin-bottom: 32px;
+            letter-spacing: 0.2em;
+            font-weight: 700;
+            margin-bottom: 24px;
         }
 
         #catch-btn {
             width: 100%;
-            height: 56px;
-            background-color: #fff;
-            color: #000;
-            border: none;
-            border-radius: 18px;
+            height: 48px;
+            border-radius: 12px;
             font-family: 'Syne', sans-serif;
             font-weight: 800;
-            font-size: 16px;
-            letter-spacing: 0.1em;
+            font-size: 14px;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        #catch-btn:active {
-            transform: scale(0.96);
-            box-shadow: 0 0 30px rgba(255,255,255,0.5);
         }
 
         /* GHOST MARKERS & GRAVEYARDS */
         .ghost-marker {
-            width: 52px;
-            height: 52px;
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            width: 14px !important;
+            height: 14px !important;
+            background: var(--entity-color, #fff);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            animation: floatSmooth 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            border: 1.5px solid var(--entity-color, #ffffff22);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.6), 0 0 12px var(--entity-color-soft, transparent);
+            box-shadow: 0 0 15px var(--entity-color-soft, transparent);
+            animation: radarPulse 2s infinite ease-out;
+            border: 2px solid rgba(255,255,255,0.3);
             z-index: 700 !important;
         }
 
-        .ghost-marker.daytime {
-            opacity: 0.5;
-            filter: grayscale(0.3) saturate(0.8);
+        @keyframes radarPulse {
+            0% { transform: scale(0.8); opacity: 0.8; box-shadow: 0 0 0 0 var(--entity-color-soft); }
+            100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 0 10px transparent; }
         }
 
-        @keyframes floatSmooth {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+        .ghost-marker.daytime {
+            opacity: 0.3;
+            filter: grayscale(1);
         }
 
         .graveyard-marker {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            filter: drop-shadow(0 0 15px rgba(155, 89, 182, 0.6));
-            animation: floatSmooth 4s ease-in-out infinite;
+            font-size: 20px;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.2);
         }
 
-        /* DANGER ZONES SVG ANIMATION */
-        @keyframes pulse-zone {
-            0% { fill-opacity: 0.05; transform: scale(0.98); transform-origin: center; }
-            100% { fill-opacity: 0.15; transform: scale(1.02); transform-origin: center; }
-        }
+        /* DANGER ZONES & LABELS */
         .atmospheric-zone {
-            animation: pulse-zone 4s ease-in-out infinite alternate;
+            fill-opacity: 0.06 !important;
+            pointer-events: none;
+            stroke: rgba(255,0,0,0.1);
+            stroke-width: 1;
+        }
+
+        .zone-label-container {
             pointer-events: none;
         }
-
-        /* ENTITY SIZE & GLOW VARIANTS */
-        .marker-large {
-            width: 62px;
-            height: 62px;
-            font-size: 32px;
-            border-width: 2px;
+        .zone-label {
+            background: transparent;
+            color: rgba(255, 75, 43, 0.6);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            text-align: center;
+            font-family: 'Syne', sans-serif;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
         }
 
-        .marker-mythic {
-            animation: floatSmooth 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite, entityPulse 2.5s infinite alternate;
-        }
-
-        @keyframes entityPulse {
-            0% { box-shadow: 0 0 10px var(--entity-color-soft); }
-            100% { box-shadow: 0 0 30px var(--entity-color), inset 0 0 15px var(--entity-color-soft); }
-        }
-
-        /* UI ACCENTS */
-        .entity-accent-text { color: var(--entity-color); text-shadow: 0 0 10px var(--entity-color-soft); }
-        .entity-accent-bg { background-color: var(--entity-color); }
-        .entity-accent-border { border-color: var(--entity-color); }
-
-        /* FILTER CHIP DOT */
+        /* CHIP DOT */
         .chip-dot {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
             border-radius: 50%;
-            margin-right: 8px;
-            background: var(--dot-color, #fff);
+            margin-right: 6px;
         }
+
 
 
         /* USER LOCATION */
@@ -710,14 +656,14 @@
             // Particle System
             function initParticles() {
                 const container = document.getElementById('ambient-particles');
-                for(let i=0; i<30; i++) {
+                for(let i=0; i<12; i++) { // Reduced count
                     let p = document.createElement('div');
                     p.className = 'particle';
                     p.style.left = Math.random() * 100 + 'vw';
-                    p.style.width = Math.random() * 4 + 2 + 'px';
+                    p.style.width = Math.random() * 3 + 1 + 'px';
                     p.style.height = p.style.width;
-                    p.style.animationDuration = (Math.random() * 15 + 10) + 's';
-                    p.style.animationDelay = (Math.random() * 10) + 's';
+                    p.style.animationDuration = (Math.random() * 10 + 8) + 's';
+                    p.style.animationDelay = (Math.random() * 5) + 's';
                     container.appendChild(p);
                 }
             }
@@ -756,8 +702,8 @@
             const hour = new Date().getHours();
             const isDay = hour >= 6 && hour < 18;
             const isNight = !isDay;
-            const maxGhosts = isNight ? 7 : 2;
-            const spawnIntervalMs = isNight ? 25000 : 90000;
+            const maxGhosts = isNight ? 6 : 2;
+            const spawnIntervalMs = isNight ? 30000 : 120000;
 
             function updateAtmosphere() {
                 const banner = document.getElementById('paranormal-banner');
@@ -767,22 +713,13 @@
 
                 if (hour >= 23 || hour < 3) {
                     banner.className = "liquid-glass banner-glow-red";
-                    title.innerText = "🌙 Haunting Window: 11PM — 3AM";
-                    subtitle.innerText = "⚠ Paranormal activity and mythic sightings peaking";
-                    overlay.classList.add('night-overlay');
-                } else if (hour >= 18 && hour < 23) {
-                    banner.className = "liquid-glass banner-glow-blue";
-                    title.innerText = "🌑 Nightfall Approaches";
-                    subtitle.innerText = "Spirits are waking. Proceed with caution.";
-                } else if (hour >= 3 && hour < 6) {
-                    banner.className = "liquid-glass banner-glow-blue";
-                    title.innerText = "🌫️ The Witching Hour Ends";
-                    subtitle.innerText = "Activity is subsiding before dawn.";
+                    title.innerText = "SIGNAL PEAK: HAUNTING WINDOW ACTIVE";
+                    subtitle.innerText = "Regional spectral density elevated. Monitoring high-tier entities.";
                     overlay.classList.add('night-overlay');
                 } else {
                     banner.className = "liquid-glass banner-glow-clear";
-                    title.innerText = "☀️ Daylight Hours";
-                    subtitle.innerText = "Return at night. Ghosts are currently resting.";
+                    title.innerText = "SCANNING: LOCAL SPECTRAL FREQUENCIES";
+                    subtitle.innerText = "Minimal activity detected. Standby for paranormal fluctuations.";
                 }
             }
             updateAtmosphere();
@@ -829,7 +766,6 @@
                     lastCaughtDisplay.innerText = activeGhostData.name;
                     lastCaughtDot.style.display = 'block';
                     lastCaughtDot.style.background = entityColor;
-                    lastCaughtDot.style.boxShadow = `0 0 10px ${entityColor}`;
                     
                     map.removeLayer(activeGhostMarker);
                     
@@ -861,22 +797,29 @@
 
             function generateDangerZones(center) {
                 const configs = [
-                    { type: 'danger', color: '#ff0000' },
-                    { type: 'warning', color: '#ffa500' },
-                    { type: 'warning', color: '#ffa500' },
-                    { type: 'safe', color: '#4ade80' }
+                    { type: 'danger', label: 'HIGH PARANORMAL ACTIVITY', color: '#ff4b2b' },
+                    { type: 'warning', label: 'ACTIVE HAUNTING ZONE', color: '#ffa500' }
                 ];
                 
                 configs.forEach(cfg => {
-                    const loc = getRandomLatLngAnnulus(center, 200, 1500);
-                    const radius = Math.random() * 200 + 150;
-                    const circle = L.circle(loc, {
+                    const loc = getRandomLatLngAnnulus(center, 300, 1200);
+                    const radius = Math.random() * 150 + 100;
+                    L.circle(loc, {
                         radius: radius,
                         color: 'transparent',
                         fillColor: cfg.color,
-                        fillOpacity: 0.1,
+                        fillOpacity: 0.05,
                         className: 'atmospheric-zone'
                     }).addTo(map);
+                    
+                    // Add thin text label
+                    const labelIcon = L.divIcon({
+                        className: 'zone-label-container',
+                        html: `<div class="zone-label">${cfg.label}</div>`,
+                        iconSize: [200, 20],
+                        iconAnchor: [100, 10]
+                    });
+                    L.marker(loc, { icon: labelIcon, interactive: false }).addTo(map);
                     
                     dangerZones.push({ loc, radius, type: cfg.type });
                 });
@@ -889,20 +832,15 @@
                     const data = await res.json();
                     
                     if (data && data.elements && data.elements.length > 0) {
-                        data.elements.slice(0, 4).forEach(el => {
+                        data.elements.slice(0, 3).forEach(el => {
                             const lat = el.lat || el.center?.lat;
                             const lon = el.lon || el.center?.lon;
                             if (lat && lon) plotGraveyard(L.latLng(lat, lon));
                         });
                         return;
                     }
-                } catch(e) {
-                    console.warn("Overpass API failed, generating fallback graveyards.");
-                }
-                
-                for(let i=0; i<2; i++) {
-                    plotGraveyard(getRandomLatLngAnnulus(center, 400, 1200));
-                }
+                } catch(e) {}
+                for(let i=0; i<2; i++) plotGraveyard(getRandomLatLngAnnulus(center, 500, 1000));
             }
 
             function plotGraveyard(latlng) {
@@ -910,33 +848,26 @@
                 const icon = L.divIcon({
                     className: 'graveyard-marker',
                     html: '🪦',
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18]
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
                 });
-                L.marker(latlng, { icon }).addTo(map);
+                L.marker(latlng, { icon, interactive: false }).addTo(map);
             }
 
             // Enhanced Spawning Logic
             function getSpawnRarity(spawnLoc) {
-                let w = { 'common': 40, 'uncommon': 25, 'rare': 18, 'epic': 10, 'legendary': 5, 'mythic': 2 };
-                
+                let w = { 'common': 45, 'uncommon': 25, 'rare': 15, 'epic': 8, 'legendary': 5, 'mythic': 2 };
                 dangerZones.forEach(z => {
                     if (spawnLoc.distanceTo(z.loc) <= z.radius) {
-                        if (z.type === 'danger') { w.legendary += 15; w.mythic += 5; }
-                        else if (z.type === 'safe') { w.rare -= 5; w.epic -= 5; w.common += 10; }
+                        if (z.type === 'danger') { w.legendary += 10; w.mythic += 4; }
                     }
                 });
-
                 graveyardLocations.forEach(g => {
                     if (spawnLoc.distanceTo(g) <= 150 && isNight) {
-                        w.epic += 10; w.legendary += 20; w.mythic += 10;
+                        w.epic += 10; w.legendary += 15;
                     }
                 });
-
-                if (hour >= 23 || hour < 3) {
-                    w.mythic += 5; w.legendary += 5;
-                }
-
+                if (hour >= 23 || hour < 3) { w.mythic += 3; w.legendary += 5; }
                 const rand = Math.random() * Object.values(w).reduce((a,b)=>a+b, 0);
                 let cumulative = 0;
                 for (const [rarity, weight] of Object.entries(w)) {
@@ -949,7 +880,7 @@
             function spawnSingleGhost(centerLatLng) {
                 if (spawnedGhosts.length >= maxGhosts) return;
 
-                const location = getRandomLatLngAnnulus(centerLatLng, 150, 800);
+                const location = getRandomLatLngAnnulus(centerLatLng, 150, 700);
                 const rarity = getSpawnRarity(location);
                 const filtered = ghostsList.filter(g => g.rarity === rarity);
                 const ghost = filtered[Math.floor(Math.random() * filtered.length)];
@@ -957,16 +888,11 @@
                 const entityColor = getEntityColor(ghost.name, ghost.type);
                 const daytimeClass = isNight ? '' : 'daytime';
                 
-                let markerClass = `ghost-marker ${daytimeClass}`;
-                let size = 52;
-                if (ghost.rarity === 'legendary') { markerClass += ' marker-large'; size = 62; }
-                if (ghost.rarity === 'mythic') { markerClass += ' marker-large marker-mythic'; size = 62; }
-
                 const ghostIcon = L.divIcon({
-                    className: markerClass,
-                    html: ghost.emoji,
-                    iconSize: [size, size],
-                    iconAnchor: [size/2, size/2]
+                    className: `ghost-marker ${daytimeClass}`,
+                    html: '', // Dots only
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
                 });
 
                 const marker = L.marker(location, { icon: ghostIcon });
@@ -975,7 +901,7 @@
                     const el = marker.getElement();
                     if (el) {
                         el.style.setProperty('--entity-color', entityColor);
-                        el.style.setProperty('--entity-color-soft', entityColor + '55');
+                        el.style.setProperty('--entity-color-soft', entityColor + '66');
                     }
                 });
 
@@ -986,25 +912,18 @@
                     L.DomEvent.stopPropagation(e);
                     activeGhostData = ghost;
                     activeGhostMarker = marker;
-                    
                     const color = getEntityColor(ghost.name, ghost.type);
-                    
                     sheetEmoji.innerText = ghost.emoji;
                     sheetName.innerText = ghost.name;
                     sheetName.style.color = color;
-                    
-                    sheetType.innerText = `[ ${ghost.type} ]  ·  ${ghost.rarity}`;
+                    sheetType.innerText = `${ghost.type} SIGNAL · RECEPTIVITY: ${ghost.rarity}`;
                     sheetType.style.color = color;
-                    
-                    sheetPoints.innerText = `+${ghost.points} PTS`;
-                    
                     catchBtn.style.background = color;
                     catchBtn.style.color = '#FFF';
-                    catchBtn.style.boxShadow = `0 10px 20px ${color}33`;
-                    
                     bottomSheet.classList.add('active');
                 });
             }
+
 
             let mapInitialized = false;
 
